@@ -30,6 +30,7 @@ var initParticles = function() {
             "uniform float deltaTime;",
             "varying vec2 FragTexCoord0;",
             "uniform int bits;",
+            "uniform int rtt;",
             "uniform sampler2D PreviousPosX;",
             "uniform sampler2D PreviousPosY;",
             "uniform sampler2D PreviousPosZ;",
@@ -54,20 +55,36 @@ var initParticles = function() {
             "   vec4 p2 = texture2D( PosZ, vec2(FragTexCoord0.x, FragTexCoord0.y));",
             "   return vec3(unpack(p0), unpack(p1), unpack(p2));",
             "}",
+            "vec3 verlet(vec3 prevPosition, vec3 currentPosition) {",
+            "   float dt = 0.01;",
+            "   vec3 acceleration = vec3(0.0, -9.81, 0.0);",
+            "   vec3 velocity = (currentPosition-prevPosition);",
+            "   vec3 next;",
+            "   if (time > 5.0) {",
+            "   next = (currentPosition + velocity * dt);",
+            "   next = prevPosition;",
+            "   } else {",
+            "   next = vec3(sin(time) + FragTexCoord0.x, 0.0, cos(time) + FragTexCoord0.y);",
+            "   }",
+            "   return next;",
+            "}",
             "",
             "void main(void) {",
             "   vec3 previousPos = getPreviousPosition();",
             "   vec3 currentPos = getCurrentPosition();",
-            "   vec4 x = pack(previousPos[0]);",
-            "   vec4 y = pack(previousPos[1]);",
-            "   vec4 z = pack(previousPos[2]);",
+            "   vec3 next = verlet(previousPos, currentPos);",
+            "   vec4 x = pack(next.x);",
+            "   vec4 y = pack(next.y);",
+            "   vec4 z = pack(next.z);",
+            "   vec4 value;",
             "   if (bits == 0) {",
-            "      gl_FragColor = x;",
+            "      value = x;",
             "   } else if (bits == 1) {",
-            "      gl_FragColor = y;",
-            "   } else {",
-            "      gl_FragColor = z;",
+            "      value = y;",
+            "   } else if (bits == 2){",
+            "      value = z;",
             "   }",
+            "   gl_FragColor = value;",
             "}",
             ""
         ].join('\n');
@@ -82,81 +99,85 @@ var initParticles = function() {
         osg.log("ready");
         root.setNodeMask(~0x0);
     };
-    var createTexture = function(size) {
-        
-        var img = new Image();
-        img.onload = ready;
-        img.src = 'texture.png';
+
+    var img = new Image();
+    img.onload = ready;
+    img.src = 'texture.png';
+
+    var textureIndex = 0;
+    var createTexture = function() {
         var texture = new osg.Texture();
         texture.setImage(img);
         texture.setTextureSize(textureSize[0], textureSize[1]);
         texture.setMinFilter('NEAREST');
         texture.setMagFilter('NEAREST');
+        texture.indexID = textureIndex;
+        textureIndex++;
         return texture;
     };
 
-    var Physics = function(camerax, cameray, cameraz) {
-        this.camera = [ camerax, cameray, cameraz ];
-        
-        this.buffers = [
-            [ createTexture(), createTexture(), createTexture()],
-            [ createTexture(), createTexture(), createTexture()],
-            [ createTexture(), createTexture(), createTexture()]
-        ];
+    var physicsTextures = [
+        [ createTexture(), createTexture(), createTexture()],
+        [ createTexture(), createTexture(), createTexture()],
+        [ createTexture(), createTexture(), createTexture()]
+    ];
 
+
+    var uniformTime = osg.Uniform.createFloat1(0.0,'time');
+
+    var Physics = function(cameras, textures) {
+        this.cameras = cameras;
+        
         var node = new osg.Node();
-        node.addChild(camerax);
-        node.addChild(cameray);
-        node.addChild(cameraz);
+        node.addChild(cameras[0]);
+        node.addChild(cameras[1]);
+        node.addChild(cameras[2]);
         this.root = node;
+        this.index = 0;
+
+        this.buffers = textures;
+        this.time = uniformTime;
     };
+
     Physics.prototype = {
         switchBuffer: function() {
-            var prev = this.buffers[0];
-            var cur = this.buffers[1];
-            var next = this.buffers[2];
-            
-            this.buffers[0] = next;
-            this.buffers[1] = prev;
-            this.buffers[2] = cur;
+            this.index = (this.index + 1) %3;
+            this.cameras[0].setNodeMask(0);
+            this.cameras[1].setNodeMask(0);
+            this.cameras[2].setNodeMask(0);
 
-            for ( var i = 0, l = 3; i < l; i++) {
-                this.camera[i].statesetGeometry.setTextureAttributeAndMode(0, this.buffers[0][0]);
-                this.camera[i].statesetGeometry.setTextureAttributeAndMode(1, this.buffers[0][1]);
-                this.camera[i].statesetGeometry.setTextureAttributeAndMode(2, this.buffers[0][2]);
-
-                this.camera[i].statesetGeometry.setTextureAttributeAndMode(3, this.buffers[1][0]);
-                this.camera[i].statesetGeometry.setTextureAttributeAndMode(4, this.buffers[1][1]);
-                this.camera[i].statesetGeometry.setTextureAttributeAndMode(5, this.buffers[1][2]);
-                this.camera[i].attachTexture(gl.COLOR_ATTACHMENT0, this.buffers[2][i]);
-            }
+            this.cameras[this.index].setNodeMask(~0x0);
         },
         getDisplayTexture: function() {
-            return this.buffers[2];
+            return this.buffers[this.index];
         }
     };
 
     var createPhysics = function() {
 
         var previousPosX = osg.Uniform.createInt1(0,'PreviousPosX');
-        var previousPosY = osg.Uniform.createInt1(1,'PreviousPosX');
-        var previousPosZ = osg.Uniform.createInt1(2,'PreviousPosX');
+        var previousPosY = osg.Uniform.createInt1(1,'PreviousPosY');
+        var previousPosZ = osg.Uniform.createInt1(2,'PreviousPosZ');
 
         var currentPosX = osg.Uniform.createInt1(3,'CurrentPosX');
-        var currentPosY = osg.Uniform.createInt1(4,'CurrentPosX');
-        var currentPosZ = osg.Uniform.createInt1(5,'CurrentPosX');
+        var currentPosY = osg.Uniform.createInt1(4,'CurrentPosY');
+        var currentPosZ = osg.Uniform.createInt1(5,'CurrentPosZ');
+        var viewport = new osg.Viewport(0,0,textureSize[0],textureSize[1]);
 
-        var createCamera = function(bits) {
+        var createCamera = function(bits, index) {
+
             var camera = new osg.Camera();
             camera.setRenderOrder(osg.Camera.PRE_RENDER, 0);
             camera.setReferenceFrame(osg.Transform.ABSOLUTE_RF);
-            camera.setViewport(new osg.Viewport(0,0,textureSize[0],textureSize[1]));
-            camera.setClearColor([0, 0, 0, 0]);
+            camera.setClearMask(0);
+            camera.useBits = "useBits " + bits;
             camera.setProjectionMatrixAsOrtho(0, 1, 0, 1, -1, 1);
+            camera.setViewport(viewport);
 
             var quad = osg.createTexturedQuad(0, 0, 0,
                                               1,  0, 0,
                                               0,  1, 0);
+            quad.useBits = camera.useBits;
             camera.addChild(quad);
 
             var prg = createParticlesShader();
@@ -165,21 +186,47 @@ var initParticles = function() {
             stateset.setAttributeAndMode(prg);
             stateset.addUniform(osg.Uniform.createInt1(bits,'bits'));
 
+            stateset.addUniform(osg.Uniform.createInt1(index,'rtt'));
+
             stateset.addUniform(previousPosX);
             stateset.addUniform(previousPosY);
             stateset.addUniform(previousPosZ);
             stateset.addUniform(currentPosX);
             stateset.addUniform(currentPosY);
             stateset.addUniform(currentPosZ);
+            stateset.addUniform(uniformTime);
+            
+            var idx;
+            idx = (index + 1)%3;
+            stateset.setTextureAttributeAndMode(0, physicsTextures[idx][0]);
+            stateset.setTextureAttributeAndMode(1, physicsTextures[idx][1]);
+            stateset.setTextureAttributeAndMode(2, physicsTextures[idx][2]);
+
+            idx = (index + 2)%3;
+            stateset.setTextureAttributeAndMode(3, physicsTextures[idx][0]);
+            stateset.setTextureAttributeAndMode(4, physicsTextures[idx][1]);
+            stateset.setTextureAttributeAndMode(5, physicsTextures[idx][2]);
+
             camera.statesetGeometry = stateset;
 
+            camera.attachTexture(gl.COLOR_ATTACHMENT0, physicsTextures[index][bits]);
             return camera;
         };
 
-        var x = createCamera(0);
-        var y = createCamera(1);
-        var z = createCamera(2);
-        return new Physics(x, y, z);
+        var cameras = [];
+        for (var c = 0, l = 3; c < l; c++) {
+            var grp = new osg.Node();
+            var x = createCamera(0, c);
+            var y = createCamera(1, c);
+            var z = createCamera(2, c);
+            grp.addChild(x);
+            grp.addChild(y);
+            grp.addChild(z);
+            cameras.push(grp);
+        }
+        var ph = new Physics(cameras,physicsTextures);
+        ph.switchBuffer();
+        return ph;
     };
     
 
@@ -212,6 +259,8 @@ var initParticles = function() {
         geom.getAttributes().Vertex = new osg.BufferArray(gl.ARRAY_BUFFER, elements, 3 );
         geom.getPrimitives().push(new osg.DrawArrays(gl.POINTS,0,elements.length/3));
         node.addChild(geom);
+        var b = node.getBound();
+        b.set(b.center(), 1.0);
 
         var vertex = [
             "",
@@ -236,15 +285,17 @@ var initParticles = function() {
             "  float z = unpack(texture2D( Z, uv));",
             "  vec4 p = vec4(x,y,z,0);",
             "  vec4 v;",
-            "  v[0] = (p[0] - 0.5) * 1.0;",
-            "  v[1] = (p[1] - 0.5) * 1.0;",
-            "  v[2] = (p[2] - 0.5) * 1.0;",
+            "  //v[0] = (p[0] - 0.5) * 1.0;",
+            "  //v[1] = (p[1] - 0.5) * 1.0;",
+            "  //v[2] = (p[2] - 0.5) * 1.0;",
             "  v[3] = 1.0;",
-            "  //v[0] = x;",
-            "  //v[1] = y;",
+            "  v[0] = x;",
+            "  v[1] = y;",
+            "  v[2] = z;",
             "  color = vec4(uv.x, uv.y, 0.0, 1.0);",
+            "  color = vec4(x, y, z, 1.0);",
             "  gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
-            "  gl_PointSize = 10.0;",
+            "  gl_PointSize = 1.0;",
             "}",
             ""
         ].join('\n');
@@ -277,7 +328,7 @@ var initParticles = function() {
 
     var physics = createPhysics();
     var render = createRender();
-
+    render.setDisplayTexture(physics.getDisplayTexture());
 
     var UpdateCallback = function (physics, render) {
         this.physics = physics;
@@ -287,14 +338,18 @@ var initParticles = function() {
         update: function(node, nv) {
             this.physics.switchBuffer();
             this.render.setDisplayTexture( this.physics.getDisplayTexture() );
+            uniformTime.set([nv.getFrameStamp().getSimulationTime()]);
+            node.traverse(nv);
         }
     };
 
     root.setUpdateCallback(new UpdateCallback(physics, render));
     
+    //physics.root.setNodeMask(0);
 
     root.addChild(physics.root);
     root.addChild(render.root);
 
     return root;
+
 };
