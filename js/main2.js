@@ -38,9 +38,7 @@ var start2 = function() {
 
     var thissound=document.getElementById('zik');
     setTimeout(function() {
-        thissound.play();
+        //thissound.play();
     }, 2000);
 
 };
-
-

@@ -4,6 +4,7 @@ var initParticles = function() {
     var root = new osg.Node();
     root.setNodeMask(0);
     var textureSize = [512, 512];
+    //textureSize = [1024, 1024];
 
     var createParticlesShader = function() {
         var vertex = [
@@ -56,15 +57,14 @@ var initParticles = function() {
             "   return vec3(unpack(p0), unpack(p1), unpack(p2));",
             "}",
             "vec3 verlet(vec3 prevPosition, vec3 currentPosition) {",
-            "   float dt = 0.01;",
-            "   vec3 acceleration = vec3(0.0, -9.81, 0.0);",
+            "   float dt = 1.0/60.0;",
+            "   vec3 acceleration = vec3(0.0, 0.0, -9.81);",
             "   vec3 velocity = (currentPosition-prevPosition);",
             "   vec3 next;",
             "   if (time > 5.0) {",
-            "   next = (currentPosition + velocity * dt);",
-            "   next = prevPosition;",
+            "   next = (currentPosition + velocity + acceleration * (dt * dt));",
             "   } else {",
-            "   next = vec3(sin(time) + FragTexCoord0.x, 0.0, cos(time) + FragTexCoord0.y);",
+            "   next = vec3(sin(time) + FragTexCoord0.x, sin(time), cos(time) + FragTexCoord0.y);",
             "   }",
             "   return next;",
             "}",
@@ -137,16 +137,20 @@ var initParticles = function() {
 
         this.buffers = textures;
         this.time = uniformTime;
+
+        this.setNodeMask();
     };
 
     Physics.prototype = {
-        switchBuffer: function() {
-            this.index = (this.index + 1) %3;
+        setNodeMask: function() {
             this.cameras[0].setNodeMask(0);
             this.cameras[1].setNodeMask(0);
             this.cameras[2].setNodeMask(0);
-
             this.cameras[this.index].setNodeMask(~0x0);
+        },
+        switchBuffer: function() {
+            this.index = (this.index + 1) %3;
+            this.setNodeMask();
         },
         getDisplayTexture: function() {
             return this.buffers[this.index];
@@ -159,9 +163,9 @@ var initParticles = function() {
         var previousPosY = osg.Uniform.createInt1(1,'PreviousPosY');
         var previousPosZ = osg.Uniform.createInt1(2,'PreviousPosZ');
 
-        var currentPosX = osg.Uniform.createInt1(3,'CurrentPosX');
-        var currentPosY = osg.Uniform.createInt1(4,'CurrentPosY');
-        var currentPosZ = osg.Uniform.createInt1(5,'CurrentPosZ');
+        var currentPosX = osg.Uniform.createInt1(3,'PosX');
+        var currentPosY = osg.Uniform.createInt1(4,'PosY');
+        var currentPosZ = osg.Uniform.createInt1(5,'PosZ');
         var viewport = new osg.Viewport(0,0,textureSize[0],textureSize[1]);
 
         var createCamera = function(bits, index) {
@@ -184,6 +188,7 @@ var initParticles = function() {
             var stateset = quad.getOrCreateStateSet();
 
             stateset.setAttributeAndMode(prg);
+            stateset.setAttributeAndMode(new osg.Depth('DISABLE'));
             stateset.addUniform(osg.Uniform.createInt1(bits,'bits'));
 
             stateset.addUniform(osg.Uniform.createInt1(index,'rtt'));
@@ -225,7 +230,6 @@ var initParticles = function() {
             cameras.push(grp);
         }
         var ph = new Physics(cameras,physicsTextures);
-        ph.switchBuffer();
         return ph;
     };
     
@@ -246,7 +250,6 @@ var initParticles = function() {
         var node = new osg.Node();
         var geom = new osg.Geometry();
         var elements = [];
-        var y = 0;
         var sizex = textureSize[0];
         var sizey = textureSize[1];
         var i;
@@ -295,7 +298,7 @@ var initParticles = function() {
             "  color = vec4(uv.x, uv.y, 0.0, 1.0);",
             "  color = vec4(x, y, z, 1.0);",
             "  gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
-            "  gl_PointSize = 1.0;",
+            "  gl_PointSize = 2.0;",
             "}",
             ""
         ].join('\n');
@@ -344,6 +347,7 @@ var initParticles = function() {
     };
 
     root.setUpdateCallback(new UpdateCallback(physics, render));
+
     
     //physics.root.setNodeMask(0);
 
