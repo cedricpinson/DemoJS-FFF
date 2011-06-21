@@ -38,7 +38,9 @@ var initParticles = function() {
             "uniform sampler2D PosX;",
             "uniform sampler2D PosY;",
             "uniform sampler2D PosZ;",
+            "uniform sampler2D DistanceMap;",
             "float life;",
+            "float distance;",
             "float unpack(vec4 vec) {",
             "  return vec[0] * 255.0 / 256.0 + vec[1] * 255.0 / (256.0 * 256.0) + vec[2] * 255.0 / (256.0 * 256.0 * 256.0);",
             "}",
@@ -58,18 +60,27 @@ var initParticles = function() {
             "   life = p0[3];",
             "   return vec3(unpack(p0), unpack(p1), unpack(p2));",
             "}",
+            "float getDistance(vec3 pos) {",
+            "   return texture2D( DistanceMap, vec2(pos.x, pos.z)).r;",
+            "}",
             "vec3 verlet(vec3 prevPosition, vec3 currentPosition, float dt) {",
             "   if (life <= 0.00001) {",
             "      life = sin(FragTexCoord0.y*time*0.2) * 0.25 + cos(FragTexCoord0.x*time*1.5) * 0.25 + sin(time) * 0.25 + 0.74;",
-            "      return vec3(0.0, 0.0, 0.0);",
+            "      return vec3(0.5, 0.5, 1.0);",
             "   }",
             "   vec3 acceleration = vec3(0.0, 0.0, -9.81 + 9.5);",
             "   vec3 targetVec = (vec3(sin(time)*0.25 + 0.5, 0.5 + cos(time*0.2)*0.25, 0.75) - currentPosition);",
+            "   ",
             "   float wind = 3.0;",
-            "   if (length(targetVec) > 0.1 ) {",
+            "   if (true || length(targetVec) > 0.1 ) {",
             "      acceleration += targetVec;",
             "      wind = 1.0;",
             "   }",
+            "   distance = getDistance(currentPosition);",
+            "   if ( distance > 0.2+0.5) {",
+            "      acceleration *= 0.0;",
+            "   }",
+            "      ",
             "   vec3 velocity = (currentPosition-prevPosition);",
             "   vec3 dir = normalize(velocity);",
             "   acceleration += -dir * 0.35 * wind;",
@@ -97,6 +108,7 @@ var initParticles = function() {
             "      value[3] = life;",
             "   } else if (bits == 1) {",
             "      value = y;",
+            "      value[3] = distance;",
             "   } else if (bits == 2){",
             "      value = z;",
             "   }",
@@ -116,14 +128,23 @@ var initParticles = function() {
         root.setNodeMask(~0x0);
     };
 
-    var img = new Image();
-    img.onload = ready;
-    img.src = 'texture.png';
+    var textureDistance = new osg.Texture();
+    var loadNext = function() {
+        var img = new Image;
+        img.onload = ready;
+        img.src = 'dist.png';
+        textureDistance.setImage(img);
+    };
+
+    var defaultImage = new Image();
+    defaultImage.onload = loadNext;
+    defaultImage.src = 'texture.png';
+
 
     var textureIndex = 0;
     var createTexture = function() {
         var texture = new osg.Texture();
-        texture.setImage(img);
+        texture.setImage(defaultImage);
         texture.setTextureSize(textureSize[0], textureSize[1]);
         texture.setMinFilter('NEAREST');
         texture.setMagFilter('NEAREST');
@@ -174,7 +195,7 @@ var initParticles = function() {
     };
 
     var createPhysics = function() {
-
+        
         var previousPosX = osg.Uniform.createInt1(0,'PreviousPosX');
         var previousPosY = osg.Uniform.createInt1(1,'PreviousPosY');
         var previousPosZ = osg.Uniform.createInt1(2,'PreviousPosZ');
@@ -182,6 +203,9 @@ var initParticles = function() {
         var currentPosX = osg.Uniform.createInt1(3,'PosX');
         var currentPosY = osg.Uniform.createInt1(4,'PosY');
         var currentPosZ = osg.Uniform.createInt1(5,'PosZ');
+
+        var distanceMap = osg.Uniform.createInt1(6,'DistanceMap');
+
         var viewport = new osg.Viewport(0,0,textureSize[0],textureSize[1]);
 
         var createCamera = function(bits, index) {
@@ -215,6 +239,8 @@ var initParticles = function() {
             stateset.addUniform(currentPosX);
             stateset.addUniform(currentPosY);
             stateset.addUniform(currentPosZ);
+            stateset.addUniform(distanceMap);
+
             stateset.addUniform(uniformTime);
             
             var idx;
@@ -227,6 +253,8 @@ var initParticles = function() {
             stateset.setTextureAttributeAndMode(3, physicsTextures[idx][0]);
             stateset.setTextureAttributeAndMode(4, physicsTextures[idx][1]);
             stateset.setTextureAttributeAndMode(5, physicsTextures[idx][2]);
+
+            stateset.setTextureAttributeAndMode(6, textureDistance);
 
             camera.statesetGeometry = stateset;
 
@@ -294,6 +322,7 @@ var initParticles = function() {
             "uniform sampler2D Z;",
             "varying vec4 color;",
             "float life;",
+            "float distance;",
             "float unpack(vec4 vec) {",
             "  return vec[0] * 255.0 / 256.0 + vec[1] * 255.0 / (256.0 * 256.0) + vec[2] * 255.0 / (256.0 * 256.0 * 256.0);",
             "}",
@@ -303,9 +332,11 @@ var initParticles = function() {
             "void main(void) {",
             "  vec2 uv = vec2(Vertex.x, Vertex.y);",
             "  vec4 xvec = texture2D( X, uv);",
+            "  vec4 yvec = texture2D( Y, uv);",
             "  life = xvec[3];",
+            "  distance = yvec[3];",
             "  float x = unpack(xvec);",
-            "  float y = unpack(texture2D( Y, uv));",
+            "  float y = unpack(yvec);",
             "  float z = unpack(texture2D( Z, uv));",
             "  vec4 p = vec4(x,y,z,0);",
             "  vec4 v;",
@@ -319,8 +350,12 @@ var initParticles = function() {
             "  color = vec4(uv.x, uv.y, 0.0, 1.0);",
             "  float alpha = getSmoothDead(life);",
             "  color = vec4(x * alpha , y * alpha, z * alpha, alpha);",
+            "  if (distance > 0.2 && distance < 0.7 ) {",
+            "     float b = 0.0 * (1.0-distance);",
+            "     color = vec4(b, b, b, 1.0);",
+            "  }",
             "  gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
-            "  gl_PointSize = 2.0;",
+            "  gl_PointSize = 1.0;",
             "}",
             ""
         ].join('\n');

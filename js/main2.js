@@ -31,7 +31,7 @@ var start2 = function() {
 
     viewer.setScene(grp);
 
-    grp.addChild(createSceneText());
+    //grp.addChild(createSceneText());
     viewer.getManipulator().computeHomePosition();
     viewer.run();
   
