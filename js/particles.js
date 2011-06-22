@@ -47,6 +47,13 @@ var initParticles = function() {
             "vec4 pack(float value) {",
             "  return vec4(floor(value * 256.0)/255.0, floor(fract(value * 256.0) * 256.0)/255.0 , floor(fract(value * 65536.0) * 256.0)/255.0, 0.0);",
             "}",
+            "vec3 getVelocityField(float x,float y,float z) {",
+            "   float vx = 0.0+cos(0.5+2.0*(x));",
+            "   float vy = cos(4.0*(y+0.5)) + sin(4.0*x);",
+            "   float vz = cos(z*2.0);",
+            "   vec3 vel = vec3( vx, vy, vz);",
+            "   return normalize(vel);",
+            "}",
             "vec3 getPreviousPosition() {",
             "   vec4 p0 = texture2D( PreviousPosX, vec2(FragTexCoord0.x, FragTexCoord0.y));",
             "   vec4 p1 = texture2D( PreviousPosY, vec2(FragTexCoord0.x, FragTexCoord0.y));",
@@ -64,28 +71,38 @@ var initParticles = function() {
             "   return texture2D( DistanceMap, vec2(pos.x, pos.z)).r;",
             "}",
             "vec3 verlet(vec3 prevPosition, vec3 currentPosition, float dt) {",
-            "   if (life <= 0.00001) {",
+            "   if (life <= 3.0/255.0 && life >= 1.0/255.0) {",
+            "      float amp = 0.005;",
+            "      return vec3(0.5+sin(FragTexCoord0.x*2.0+time)*amp, 0.5+sin(FragTexCoord0.y*2.0+time)*amp, 0.5 + cos(FragTexCoord0.y*2.0+time)*amp);",
+            "   } else if (life < 1.0/255.0) {",
             "      life = sin(FragTexCoord0.y*time*0.2) * 0.25 + cos(FragTexCoord0.x*time*1.5) * 0.25 + sin(time) * 0.25 + 0.74;",
-            "      return vec3(0.5, 0.5, 1.0);",
+            "      //return currentPosition + (currentPosition - prevPosition);",
+            "      return vec3(0.5, 0.5, 0.5);",
             "   }",
             "   vec3 acceleration = vec3(0.0, 0.0, -9.81 + 9.5);",
-            "   vec3 targetVec = (vec3(sin(time)*0.25 + 0.5, 0.5 + cos(time*0.2)*0.25, 0.75) - currentPosition);",
+            "   //vec3 targetVec = (vec3(sin(time)*0.25 + 0.5, 0.5 + cos(time*0.2)*0.25, 0.75) - currentPosition)*0.2;",
+            "   vec3 targetVec = (vec3(sin(time)*0.25 + 0.5, 0.5 + cos(time*0.2)*0.25, 0.75) - currentPosition)*1.0;",
+            "   targetVec = getVelocityField(currentPosition[0], currentPosition[1],currentPosition[2]) * 0.5;",
             "   ",
             "   float wind = 3.0;",
             "   if (true || length(targetVec) > 0.1 ) {",
             "      acceleration += targetVec;",
-            "      wind = 1.0;",
+            "      wind = 0.7;",
             "   }",
+            "   acceleration *= 0.5;",
             "   distance = getDistance(currentPosition);",
             "   if ( distance > 0.2+0.5) {",
-            "      acceleration *= 0.0;",
+            "      acceleration *= 0.5;",
+            "      wind = 2.0;",
             "   }",
             "      ",
             "   vec3 velocity = (currentPosition-prevPosition);",
             "   vec3 dir = normalize(velocity);",
-            "   acceleration += -dir * 0.35 * wind;",
+            "   if (length(velocity) > 0.001) {",
+            "     acceleration += -dir * 0.35 * wind;",
+            "   }",
             "   vec3 next;",
-            "   if (time > 1.0) {",
+            "   if (true || time > 1.0) {",
             "   next = (currentPosition + velocity + acceleration * (dt * dt));",
             "   } else {",
             "   next = vec3(sin(time) + FragTexCoord0.x, sin(time), cos(time) + FragTexCoord0.y);",
@@ -307,7 +324,7 @@ var initParticles = function() {
         geom.getPrimitives().push(new osg.DrawArrays(gl.POINTS,0,elements.length/3));
         node.addChild(geom);
         var b = node.getBound();
-        b.set(b.center(), 1.0);
+        b.set([0.5, 0.5, 0.5], 1.0);
 
         var vertex = [
             "",
@@ -329,6 +346,10 @@ var initParticles = function() {
             "float getSmoothDead(float value) {",
             "  return 1.0-pow(1.0-value,6.0);",
             "}",
+            " // (2 + -((x-0.5)*(x-0.5) * 8))*0.5",
+            "float getSmoothDead2(float x) {",
+            "  return (2.0 + -(pow(x-0.5,2.0) * 8.0))*0.5;",
+            "}",
             "void main(void) {",
             "  vec2 uv = vec2(Vertex.x, Vertex.y);",
             "  vec4 xvec = texture2D( X, uv);",
@@ -348,11 +369,11 @@ var initParticles = function() {
             "  v[1] = y;",
             "  v[2] = z;",
             "  color = vec4(uv.x, uv.y, 0.0, 1.0);",
-            "  float alpha = getSmoothDead(life);",
+            "  float alpha = getSmoothDead2(life);",
             "  color = vec4(x * alpha , y * alpha, z * alpha, alpha);",
             "  if (distance > 0.2 && distance < 0.7 ) {",
             "     float b = 0.0 * (1.0-distance);",
-            "     color = vec4(b, b, b, 1.0);",
+            "     color = vec4(b, b, b, 1.0 * alpha);",
             "  }",
             "  gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
             "  gl_PointSize = 1.0;",
@@ -367,6 +388,9 @@ var initParticles = function() {
             "#endif",
             "varying vec4 color;",
             "void main(void) {",
+            "if (color[3] < 0.01) {",
+            "   discard;",
+            "}",
             "gl_FragColor = color;",
             "}",
             ""
@@ -378,7 +402,7 @@ var initParticles = function() {
         
         var stateset = geom.getOrCreateStateSet();
         stateset.setAttributeAndMode(program);
-//        stateset.setAttributeAndMode(new osg.BlendFunc('ONE', 'ZERO'));
+        stateset.setAttributeAndMode(new osg.BlendFunc('ONE', 'ONE_MINUS_SRC_ALPHA'));
 
         stateset.addUniform(osg.Uniform.createInt1(0,"X"));
         stateset.addUniform(osg.Uniform.createInt1(1,"Y"));
