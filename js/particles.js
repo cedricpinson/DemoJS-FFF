@@ -4,7 +4,9 @@ var initParticles = function() {
     var root = new osg.Node();
     root.setNodeMask(0);
     var textureSize = [512, 512];
-    //textureSize = [1024, 1024];
+    textureSize = [1024, 1024];
+    textureSize = [1024, 512];
+    textureSize = [512, 512];
 
     var createParticlesShader = function() {
         var vertex = [
@@ -183,7 +185,8 @@ var initParticles = function() {
 
     var defaultImage = new Image();
     defaultImage.onload = loadNext;
-    defaultImage.src = 'texture.png';
+    //defaultImage.src = 'texture.png';
+    defaultImage.src = "texture_" + textureSize[0] + "_" + textureSize[1] + ".png";
 
 
     var textureIndex = 0;
@@ -398,9 +401,6 @@ var initParticles = function() {
             "  float z = unpack(zvec);",
             "  vec4 p = vec4(x,y,z,0);",
             "  vec4 v;",
-            "  //v[0] = (p[0] - 0.5) * 1.0;",
-            "  //v[1] = (p[1] - 0.5) * 1.0;",
-            "  //v[2] = (p[2] - 0.5) * 1.0;",
             "  v[3] = 1.0;",
             "  v[0] = x;",
             "  v[1] = y;",
@@ -457,6 +457,9 @@ var initParticles = function() {
     var render = createRender();
     render.setDisplayTexture(physics.getDisplayTexture());
 
+
+    var timeObjects = timeSetup(timeEvents);
+
     var UpdateCallback = function (physics, render) {
         this.physics = physics;
         this.render = render;
@@ -464,8 +467,14 @@ var initParticles = function() {
     UpdateCallback.prototype = {
         update: function(node, nv) {
             var t = nv.getFrameStamp().getSimulationTime();
+
             weightVelocityField.set([0.5 + 0.5*Math.cos(t*0.2)]);
             weightDistanceMap.set([1.0 + 0.0* (0.5 + 0.5*Math.cos(t*0.666666))]);
+
+            //weightVelocityField.set([timeObjects.FRQMusicRiff.value]);
+            //weightDistanceMap.set([timeObjects.FRQMusicChangePattern.value]);
+            freeze.set([timeObjects.FRQMusicChangePattern.value]);
+            osg.log(timeObjects.FRQMusicChangePattern.value);
 
             this.physics.switchBuffer();
             this.render.setDisplayTexture( this.physics.getDisplayTexture() );
@@ -483,18 +492,22 @@ var initParticles = function() {
     root.addChild(render.root);
 
 
-    document.addEventListener(
-        "keydown", 
-        function(event) {
-            osg.log("freeze");
-            freeze.set([1]);
-            window.setTimeout(function() {
-                freeze.set([0]);
-                osg.log("unfreeze");
-            },1000);
-        }, 
-        false);
+    if (false) {
+        document.addEventListener(
+            "keydown", 
+            function(event) {
+                osg.log("freeze");
+                freeze.set([1]);
+                window.setTimeout(function() {
+                    freeze.set([0]);
+                    osg.log("unfreeze");
+                },600);
+            }, 
+            false);
+    }
 
+
+    //return new osg.Node();
     return root;
 
 };

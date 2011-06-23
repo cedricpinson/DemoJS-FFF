@@ -33,12 +33,33 @@ var start2 = function() {
 
     //grp.addChild(createSceneText());
     viewer.getManipulator().computeHomePosition();
-    viewer.run();
   
+    var audioSound=document.getElementById('zik');
 
-    var thissound=document.getElementById('zik');
+    var startMusic = 1.0;
+    var MainUpdate = function() { this.previousAudioTime = undefined;};
+    MainUpdate.prototype = {
+        update: function(node, nv) {
+            var t = audioSound.currentTime;
+            if (!this.previousAudioTime) {
+                this.previousAudioTime = t;
+            }
+            var dtAudio = t - this.previousAudioTime;
+            this.previousAudioTime = t;
+
+            Timeline.getGlobalInstance().update(dtAudio);
+
+            node.traverse(nv);
+        }
+    };
+
     setTimeout(function() {
-        //thissound.play();
-    }, 2000);
+        audioSound.play();
+    }, Math.floor(startMusic * 1000));
 
+    grp.setUpdateCallback(new MainUpdate());
+
+
+
+    viewer.run();
 };
