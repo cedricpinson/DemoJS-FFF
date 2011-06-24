@@ -533,23 +533,22 @@ var initParticles = function() {
             var t = nv.getFrameStamp().getSimulationTime();
             uniformSeed.get()[0] = Math.random();
             uniformSeed.dirty();
+            uniformTime.set([t]);
 
             // initialize spawn buffer at the beginning
             if (this.nbUpdate == 0) {
                 //forceNewLife.set([1]);
                 solidModel.set([1.0]);
+                weightDistanceMap.set([10.0]);
             } else if (this.nbUpdate == 2) {
-                forceNewLife.set([0]);
                 solidModel.set([0.0]);
-
             } else if (this.nbUpdate == 3) {
                 var audioSound = document.getElementById('zik');
                 audioSound.play();
-            }
+            } else {
 
             weightVelocityField.set([0.0* (0.5 + 0.5*Math.cos(t*0.2))]);
             weightDistanceMap.set([0.0 * (0.5 + 0.5*Math.cos(t*0.666666))]);
-
             rotationZ.set([0 * timeObjects.FRQMusicRiff.value]);
             rotationX.set([0 * timeObjects.FRQMusicRiff.value]);
 
@@ -589,9 +588,9 @@ var initParticles = function() {
             
 //            freeze.set([Math.floor(timeObjects.FRQMusicChangePattern.value)]);
 
+            }
             this.physics.switchBuffer();
             this.render.setDisplayTexture( this.physics.getDisplayTexture() );
-            uniformTime.set([t]);
 
             this.nbUpdate += 1;
             node.traverse(nv);
