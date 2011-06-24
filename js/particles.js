@@ -52,6 +52,7 @@ var initParticles = function() {
             "uniform mat4  modelMatrix;",
             "uniform float modelRotationZ;",
             "uniform float modelRotationX;",
+            "uniform float seed;",
             "float life;",
             "float distance;",
             "float material;",
@@ -101,7 +102,7 @@ var initParticles = function() {
             "}",
             "vec3 getVelocityField(vec3 pos) {",
             "   float vx = 0.0+cos(0.5+2.0*(pos.x*pos.x*time));",
-            "   float vy = cos(4.0*(pos.y*time+0.5)) + sin(4.0*pos.x*time*time);",
+            "   float vy = cos(4.0*(pos.y*time+ seed*0.5)) + seed * sin(4.0*pos.x*time*time);",
             "   float vz = cos(pos.z*2.0*time);",
             "   vec3 vel = vec3( vx, vy, vz);",
             "   return normalize(vel);",
@@ -153,8 +154,8 @@ var initParticles = function() {
             "   acceleration += targetVec ;", //* 0.5;",
             "   ",
             "   distance = getDistance(currentPosition)*weightDistanceMap;",
-            "   if ( distance > 0.3) {",
-            "      if (freeze == 1) {",
+            "   if (freeze == 1) {",
+            "      if ( distance > 0.3) {",
             "         material = distance;",
             "      }",
             "   }",
@@ -174,7 +175,11 @@ var initParticles = function() {
             "   float dt = 1.0/60.0;",
             "   vec3 previousPos = getPreviousPosition();",
             "   vec3 currentPos = getCurrentPosition();",
-            "   life = max(life-dt/8.0, 0.0);",
+            "   if (material > 0.3) {",
+            "      life = max(life-dt/3.0, 0.0);",
+            "   } else {",
+            "      life = max(life-dt/1.5, 0.0);",
+            "   }",
             "   vec3 next;",
             "   if (forceNewLife == 1) {",
             "      life = 3.0/255.0;",
@@ -184,7 +189,7 @@ var initParticles = function() {
             "         next = getSpawnPosition(0.0);",
             "      } else if (life < 1.0/255.0) {",
             "         //life = sin(FragTexCoord0.y*(time + 3.333333)*0.2) * 0.25 + cos(FragTexCoord0.x*time*1.5) * 0.25 + sin(time) * 0.25 + 0.74;",
-            "         life = sin((FragTexCoord0.y + FragTexCoord0.x*1.3333)*(time + 3.333333)*0.2) * 0.4 + 0.6;",
+            "         life = sin((FragTexCoord0.y + FragTexCoord0.x*1.3333)*(time * seed + 3.333333)*0.2) * 0.4 + 0.5;",
             "         next = getSpawnPosition(0.005);",
             "      } else {",
             "         next = currentPos*solidModel + (1.0 - solidModel) * verlet(previousPos, currentPos, dt);",
@@ -261,6 +266,7 @@ var initParticles = function() {
     var rotationZ = osg.Uniform.createFloat1(0.0,'rotationZ');
     var rotationX = osg.Uniform.createFloat1(0.0,'rotationX');
     var modelMatrix = osg.Uniform.createMatrix4(osg.Matrix.makeIdentity([]),'modelMatrix');
+    var uniformSeed = osg.Uniform.createFloat1(Math.random(),'seed');
 
     var Physics = function(cameras, textures) {
         this.cameras = cameras;
@@ -350,6 +356,7 @@ var initParticles = function() {
             stateset.addUniform(rotationZ);
             stateset.addUniform(rotationX);
             stateset.addUniform(modelMatrix);
+            stateset.addUniform(uniformSeed);
 
             var idx;
             idx = (index + 1)%3;
@@ -524,10 +531,12 @@ var initParticles = function() {
     UpdateCallback.prototype = {
         update: function(node, nv) {
             var t = nv.getFrameStamp().getSimulationTime();
+            uniformSeed.get()[0] = Math.random();
+            uniformSeed.dirty();
 
             // initialize spawn buffer at the beginning
             if (this.nbUpdate == 0) {
-                forceNewLife.set([1]);
+                //forceNewLife.set([1]);
                 solidModel.set([1.0]);
             } else if (this.nbUpdate == 2) {
                 forceNewLife.set([0]);
@@ -541,9 +550,6 @@ var initParticles = function() {
             weightVelocityField.set([0.0* (0.5 + 0.5*Math.cos(t*0.2))]);
             weightDistanceMap.set([0.0 * (0.5 + 0.5*Math.cos(t*0.666666))]);
 
-            //weightVelocityField.set([timeObjects.FRQMusicRiff.value]);
-            //weightDistanceMap.set([timeObjects.FRQMusicChangePattern.value]);
-            //rotationZ.set([timeObjects.RotationZ.value]);
             rotationZ.set([0 * timeObjects.FRQMusicRiff.value]);
             rotationX.set([0 * timeObjects.FRQMusicRiff.value]);
 
@@ -555,19 +561,27 @@ var initParticles = function() {
                 var vec = [0,0,0];
                 vec[timeObjects.Text1.axis] = timeObjects.Text1.axisDirection;
                 osg.Matrix.makeRotate((1.0-timeObjects.Text1.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
-            }
-            weightDistanceMap.set([1.0]);
-
-            freeze.set([timeObjects.FreezeText.value]);
-
-            if (timeObjects.Text2.value > 0.0) {
+            } else if (timeObjects.Text2.value > 0.0) {
                 var vec = [0,0,0];
                 vec[timeObjects.Text2.axis] = timeObjects.Text2.axisDirection;
                 osg.Matrix.makeRotate((1.0-timeObjects.Text2.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
-                weightDistanceMap.set([timeObjects.Text2.value]);
+            }
+            if (timeObjects.Text3.value > 0.0) {
+                var vec = [0,0,0];
+                vec[timeObjects.Text3.axis] = timeObjects.Text3.axisDirection;
+                osg.Matrix.makeRotate((1.0-timeObjects.Text3.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+            } else if (timeObjects.Text4.value > 0.0) {
+                var vec = [0,0,0];
+                vec[timeObjects.Text4.axis] = timeObjects.Text4.axisDirection;
+                osg.Matrix.makeRotate((1.0-timeObjects.Text4.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
             }
 
-            weightVelocityField.set([0.3 * (0.5 + 0.5*Math.cos((t+4.0)*0.2))]);
+            weightDistanceMap.set([0.8]);
+            freeze.set([timeObjects.FreezeText.value]);
+
+
+            //weightVelocityField.set([Math.random() * 0.4 * (0.5 + Math.cos((t+4.0)*0.2))]);
+            rotationX.set([0.4]);
 
 //            osg.Matrix.postMult(osg.Matrix.makeRotate(timeObjects.FRQMusicRiff.value, 1,0,0, []), modelMatrix.get() );
             modelMatrix.dirty();

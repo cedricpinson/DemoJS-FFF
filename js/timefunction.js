@@ -112,11 +112,95 @@ var timeSetup = function(eventData) {
         { value:0.0},
         0.1
     );
+    anim("FreezeText", dictObject.FreezeText).to( 
+        7.4,
+        { value:1.0 },
+        0.0001,
+        Timeline.Easing.Linear.EaseNone
+    ).to(
+        0.5,
+        { value:0.0},
+        0.1
+    );
+    anim("FreezeText", dictObject.FreezeText).to( 
+        11.1,
+        { value:1.0 },
+        0.0001,
+        Timeline.Easing.Linear.EaseNone
+    ).to(
+        0.5,
+        { value:0.0},
+        0.1
+    );
 
 
     dictObject.Text2 = { value: 0.0};
     anim("Text2",dictObject.Text2).to(
         3.75,
+        { value:1.0 },
+        selectAxis,
+        0.1,
+        Timeline.Easing.Cubic.EaseIn
+    ).to(
+        0.0,
+        { value:0.0},
+        0.00001
+    ).to(
+        0.8,
+        { value:1.0 },
+        selectAxis,
+        0.1,
+        Timeline.Easing.Cubic.EaseIn
+    ).to(
+        { value:0.0},
+        0.00001
+    ).to(
+        0.8,
+        { value:1.0 },
+        selectAxis,
+        0.1,
+        Timeline.Easing.Cubic.EaseIn
+    ).to(
+        { value:0.0},
+        0.00001
+    );
+
+
+    dictObject.Text3 = { value: 0.0};
+    anim("Text3",dictObject.Text3).to(
+        7.4,
+        { value:1.0 },
+        selectAxis,
+        0.1,
+        Timeline.Easing.Cubic.EaseIn
+    ).to(
+        0.0,
+        { value:0.0},
+        0.00001
+    ).to(
+        0.8,
+        { value:1.0 },
+        selectAxis,
+        0.1,
+        Timeline.Easing.Cubic.EaseIn
+    ).to(
+        { value:0.0},
+        0.00001
+    ).to(
+        0.8,
+        { value:1.0 },
+        selectAxis,
+        0.1,
+        Timeline.Easing.Cubic.EaseIn
+    ).to(
+        { value:0.0},
+        0.00001
+    );
+
+
+    dictObject.Text4 = { value: 0.0};
+    anim("Text4",dictObject.Text4).to(
+        11.1,
         { value:1.0 },
         selectAxis,
         0.1,
