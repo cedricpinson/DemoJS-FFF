@@ -479,6 +479,8 @@ var initParticles = function() {
             "     color = vec4(b, b, b, 1.0 * alpha);",
             "  } else { ",
             "     color = vec4(0.0, 0.0, 0.0, 1.0 * 0.0);",
+            "     gl_Position = vec4(0.0,0.0,-10000.0,1.0); // clip it",
+            "     return;",
             "  } ",
             "  gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
             "  gl_PointSize = 2.0;",
