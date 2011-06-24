@@ -1,4 +1,5 @@
 /** -*- compile-command: "jslint-cli particles.js" -*- */
+
 var initParticles = function() {
 
     var root = new osg.Node();
@@ -42,8 +43,15 @@ var initParticles = function() {
             "uniform sampler2D PosZ;",
             "uniform sampler2D DistanceMap;",
             "uniform int freeze;",
+            "uniform int forceNewLife;",
             "uniform float weightDistanceMap;",
             "uniform float weightVelocityField;",
+            "uniform float solidModel;",
+            "uniform float rotationZ;",
+            "uniform float rotationX;",
+            "uniform mat4  modelMatrix;",
+            "uniform float modelRotationZ;",
+            "uniform float modelRotationX;",
             "float life;",
             "float distance;",
             "float material;",
@@ -53,13 +61,33 @@ var initParticles = function() {
             "vec4 pack(float value) {",
             "  return vec4(floor(value * 256.0)/255.0, floor(fract(value * 256.0) * 256.0)/255.0 , floor(fract(value * 65536.0) * 256.0)/255.0, 0.0);",
             "}",
-            "vec3 getSpawnPosition(float offset) {",
-            "   vec3 center = vec3(0.5, 0.70, 0.5);",
-            "   vec2 size = vec2(0.7, 0.4);",
-            "   vec3 corner = center - vec3(size.x/2.0, 0.0, size.y/2.0);",
-            "   vec3 pos = vec3(size.x* FragTexCoord0.x, -offset + 0.1 + 0.1*cos(4.0*FragTexCoord0.x), size.y*FragTexCoord0.y + 0.05*cos(4.0*FragTexCoord0.x))+corner;",
+            "vec3 getSpawnModel(float offset) {",
+            "   vec3 center = vec3(0.5, 0.5, 0.5);",
+            "   float size = 0.2;",
+            "   float a = 2.0 * 3.14159 * FragTexCoord0.x;",
+            "   float b = 2.0 * 3.14159 * FragTexCoord0.y;",
+            "   vec3 pos = center + vec3(cos(a), cos(a)+sin(b), cos(b)) * size;",
+            "   //pos = center + (modelMatrix*(vec4(pos-center,1.0))).xyz;",
             "   material = 0.0;",
             "   return pos;",
+            "}",
+            "",
+            "vec3 getSpawnPosition(float offset) {",
+            "   return getSpawnModel(offset);",
+            "   vec3 center = vec3(0.5, 0.70, 0.5);",
+            "   vec3 size = vec3(0.7, 0.0,  0.4);",
+            "   vec3 corner = center - size*0.5;",
+            "   vec3 pos = vec3(size.x* FragTexCoord0.x, -offset + 0.1 + 0.1*cos(4.0*FragTexCoord0.x), size.z*FragTexCoord0.y + 0.05*cos(4.0*FragTexCoord0.x))+corner;",
+            "   //pos = center + (modelMatrix*(vec4(pos-center, 1.0))).xyz;",
+            "   material = 0.0;",
+            "   return pos;",
+            "}",
+            "vec3 getRotationalVelocityField(vec3 pos, vec3 axis, float speed) {",
+            "   float rotationalSpeed = 1.0;",
+            "   vec3 fromCenter = pos-vec3(0.5,0.5,pos[2]);",
+            "   vec3 vec = cross(axis, pos-vec3(0.5,0.5,pos[2]) );",
+            "   float dist = length(fromCenter)*10.0 * speed;",
+            "   return vec*dist;",
             "}",
             "vec3 getVelocityField(vec3 pos) {",
             "   float vx = 0.0+cos(0.5+2.0*(pos.x*pos.x*time));",
@@ -97,37 +125,30 @@ var initParticles = function() {
             "   return dir;",
             "}",
             "vec3 verlet(vec3 prevPosition, vec3 currentPosition, float dt) {",
-            "   if (life <= 3.0/255.0 && life >= 1.0/255.0) {",
-            "      return getSpawnPosition(0.0);",
-            "      float amp = 0.005;",
-            "      return vec3(0.5+sin(FragTexCoord0.x*2.0+time)*amp, 0.5+sin(FragTexCoord0.y*2.0+time)*amp, 0.5 + cos(FragTexCoord0.y*2.0+time)*amp);",
-            "   } else if (life < 1.0/255.0) {",
-            "      life = sin(FragTexCoord0.y*time*0.2) * 0.25 + cos(FragTexCoord0.x*time*1.5) * 0.25 + sin(time) * 0.25 + 0.74;",
-            "      return getSpawnPosition(0.005);",
-            "   }",
+            "   vec3 center = vec3(0.5,0.5,0.5);",
+            "   currentPosition = center+(modelMatrix * vec4(currentPosition-center,1.0)).xyz;",
             "   vec3 acceleration = vec3(0.0, 0.0, 0.0*(-9.81 + 9.5));",
             "   vec3 targetVec = vec3(0.0,0.0,0.0);",
             "   targetVec = getVelocityField(currentPosition)*weightVelocityField*0.5;",
+            "   if (rotationZ >= 0.01) {",
+            "      targetVec += getRotationalVelocityField(currentPosition, vec3(0.0, 0.0, 1.0), rotationZ);",
+            "   }",
+            "   if (rotationX >= 0.01) {",
+            "      targetVec += getRotationalVelocityField(currentPosition, vec3(1.0, 0.0, 0.0), rotationX);",
+            "   }",          
             "   targetVec += getDirection(currentPosition)*weightDistanceMap*0.4;",
             "   ",
             "   vec3 velocity = (currentPosition-prevPosition);",
             "   float wind = 1.0;",
-            "   acceleration += targetVec * 0.1;",
+            "   acceleration += targetVec ;", //* 0.5;",
             "   ",
-            "   //acceleration *= 0.5;",
             "   distance = getDistance(currentPosition)*weightDistanceMap;",
             "   if ( distance > 0.3) {",
-            "      //acceleration *= 0.5;",
-            "      //velocity *= 0.0;",
-            "      //wind = 2.5;",
-            "      //velocity *= 0.98;",
-            "      //acceleration *= 0.01;",
-            "      //wind = 0.0;",
             "      if (freeze == 1) {",
             "         material = 1.0;",
             "      }",
             "   }",
-            "      ",
+            "",
             "   vec3 dir = normalize(velocity);",
             "   float l = length(velocity);",
             "   float maxSpeed = 0.005;",
@@ -144,7 +165,20 @@ var initParticles = function() {
             "   vec3 previousPos = getPreviousPosition();",
             "   vec3 currentPos = getCurrentPosition();",
             "   life = max(life-dt/8.0, 0.0);",
-            "   vec3 next = verlet(previousPos, currentPos, dt);",
+            "   vec3 next;",
+            "   if (forceNewLife == 1) {",
+            "      life = 3.0/255.0;",
+            "      next = currentPos;",
+            "   } else {",
+            "      if (life <= 3.0/255.0 && life >= 1.0/255.0) {",
+            "         next = getSpawnPosition(0.0);",
+            "      } else if (life < 1.0/255.0) {",
+            "         life = sin(FragTexCoord0.y*time*0.2) * 0.25 + cos(FragTexCoord0.x*time*1.5) * 0.25 + sin(time) * 0.25 + 0.74;",
+            "         next = getSpawnPosition(0.005);",
+            "      } else {",
+            "         next = currentPos*solidModel + (1.0 - solidModel) * verlet(previousPos, currentPos, dt);",
+            "      }",
+            "   }",
             "   vec4 x = pack(next.x);",
             "   vec4 y = pack(next.y);",
             "   vec4 z = pack(next.z);",
@@ -185,7 +219,6 @@ var initParticles = function() {
 
     var defaultImage = new Image();
     defaultImage.onload = loadNext;
-    //defaultImage.src = 'texture.png';
     defaultImage.src = "texture_" + textureSize[0] + "_" + textureSize[1] + ".png";
 
 
@@ -212,6 +245,11 @@ var initParticles = function() {
     var freeze = osg.Uniform.createInt1(0,'freeze');
     var weightVelocityField = osg.Uniform.createFloat1(1,'weightVelocityField');
     var weightDistanceMap = osg.Uniform.createFloat1(1,'weightDistanceMap');
+    var forceNewLife = osg.Uniform.createInt1(0,'forceNewLife');
+    var solidModel = osg.Uniform.createFloat1(1.0,'solidModel');
+    var rotationZ = osg.Uniform.createFloat1(0.0,'rotationZ');
+    var rotationX = osg.Uniform.createFloat1(0.0,'rotationX');
+    var modelMatrix = osg.Uniform.createMatrix4(osg.Matrix.makeIdentity([]),'modelMatrix');
 
     var Physics = function(cameras, textures) {
         this.cameras = cameras;
@@ -294,9 +332,14 @@ var initParticles = function() {
 
             stateset.addUniform(uniformTime);
             stateset.addUniform(freeze);
+            stateset.addUniform(forceNewLife);
             stateset.addUniform(weightVelocityField);
             stateset.addUniform(weightDistanceMap);
-            
+            stateset.addUniform(solidModel);
+            stateset.addUniform(rotationZ);
+            stateset.addUniform(rotationX);
+            stateset.addUniform(modelMatrix);
+
             var idx;
             idx = (index + 1)%3;
             stateset.setTextureAttributeAndMode(0, physicsTextures[idx][0]);
@@ -386,6 +429,7 @@ var initParticles = function() {
             "}",
             " // (2 + -((x-0.5)*(x-0.5) * 8))*0.5",
             "float getSmoothDead2(float x) {",
+            "  //return 1.0;",
             "  return (2.0 + -(pow(x-0.5,2.0) * 8.0))*0.5;",
             "}",
             "void main(void) {",
@@ -463,22 +507,49 @@ var initParticles = function() {
     var UpdateCallback = function (physics, render) {
         this.physics = physics;
         this.render = render;
+        this.nbUpdate = 0;
     };
     UpdateCallback.prototype = {
         update: function(node, nv) {
             var t = nv.getFrameStamp().getSimulationTime();
 
-            weightVelocityField.set([0.5 + 0.5*Math.cos(t*0.2)]);
-            weightDistanceMap.set([1.0 + 0.0* (0.5 + 0.5*Math.cos(t*0.666666))]);
+            // initialize spawn buffer at the beginning
+            if (this.nbUpdate == 0) {
+                forceNewLife.set([1]);
+                solidModel.set([1.0]);
+            } else if (this.nbUpdate == 1) {
+                forceNewLife.set([0]);
+                solidModel.set([0.0]);
+            } else if (this.nbUpdate > 1) {
+                //solidModel.set([0.0]);
+            }
+
+            weightVelocityField.set([0.0* (0.5 + 0.5*Math.cos(t*0.2))]);
+            weightDistanceMap.set([0.0 * (0.5 + 0.5*Math.cos(t*0.666666))]);
 
             //weightVelocityField.set([timeObjects.FRQMusicRiff.value]);
             //weightDistanceMap.set([timeObjects.FRQMusicChangePattern.value]);
-            freeze.set([timeObjects.FRQMusicChangePattern.value]);
-            osg.log(timeObjects.FRQMusicChangePattern.value);
+            //rotationZ.set([timeObjects.RotationZ.value]);
+            rotationZ.set([0 * timeObjects.FRQMusicRiff.value]);
+            rotationX.set([0 * timeObjects.FRQMusicRiff.value]);
+
+            osg.Matrix.makeIdentity(modelMatrix.get());
+            if (timeObjects.ModelRotate.value > 0.0) {
+                var vec = [0,0,0];
+                vec[timeObjects.ModelRotate.axis] = 1.0;
+                osg.Matrix.makeRotate((1.0-timeObjects.ModelRotate.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+            }
+//            osg.Matrix.postMult(osg.Matrix.makeRotate(timeObjects.FRQMusicRiff.value, 1,0,0, []), modelMatrix.get() );
+            modelMatrix.dirty();
+            
+            
+            freeze.set([Math.floor(timeObjects.FRQMusicChangePattern.value)]);
 
             this.physics.switchBuffer();
             this.render.setDisplayTexture( this.physics.getDisplayTexture() );
             uniformTime.set([t]);
+
+            this.nbUpdate += 1;
             node.traverse(nv);
         }
     };
@@ -507,7 +578,6 @@ var initParticles = function() {
     }
 
 
-    //return new osg.Node();
     return root;
 
 };

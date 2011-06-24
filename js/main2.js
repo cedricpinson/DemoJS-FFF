@@ -37,13 +37,10 @@ var start2 = function() {
     var audioSound=document.getElementById('zik');
 
     var startMusic = 1.0;
-    var MainUpdate = function() { this.previousAudioTime = undefined;};
+    var MainUpdate = function() { this.previousAudioTime = 0.0;};
     MainUpdate.prototype = {
         update: function(node, nv) {
             var t = audioSound.currentTime;
-            if (!this.previousAudioTime) {
-                this.previousAudioTime = t;
-            }
             var dtAudio = t - this.previousAudioTime;
             this.previousAudioTime = t;
 

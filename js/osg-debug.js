@@ -1,4 +1,4 @@
-// osg-debug-0.0.5.js commit a070dbde65604b7fc850623f4b9ddb6d9f795c89 - http://github.com/cedricpinson/osgjs
+// osg-debug-0.0.5.js commit dc5899fa89107b23e2e192e2a7215b3d9fdbde1d - http://github.com/cedricpinson/osgjs
 /** -*- compile-command: "jslint-cli osg.js" -*- */
 var osg = {};
 
@@ -1486,6 +1486,10 @@ osg.Uniform = function () { this.transpose = false; this._dirty = true; };
 
 /** @lends osg.Uniform.prototype */
 osg.Uniform.prototype = {
+
+    get: function() { // call dirty if you update this array outside
+        return this.data;
+    },
     set: function(array) {
         this.data = array;
         this.dirty();
@@ -2859,9 +2863,9 @@ osg.Light = function () {
     this.light_unit = 0;
     this.enabled = 0;
 
-//    this.ambient = [ 1.0, 1.0, 1.0, 1.0 ];
-//    this.diffuse = [ 1.0, 1.0, 1.0, 1.0 ];
-//    this.specular = [ 1.0, 1.0, 1.0, 1.0 ];
+    this.ambient = [ 1.0, 1.0, 1.0, 1.0 ];
+    this.diffuse = [ 1.0, 1.0, 1.0, 1.0 ];
+    this.specular = [ 1.0, 1.0, 1.0, 1.0 ];
 
     this._dirty = true;
 };
