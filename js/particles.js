@@ -129,7 +129,7 @@ var initParticles = function() {
             "   currentPosition = center+(modelMatrix * vec4(currentPosition-center,1.0)).xyz;",
             "   vec3 acceleration = vec3(0.0, 0.0, 0.0*(-9.81 + 9.5));",
             "   vec3 targetVec = vec3(0.0,0.0,0.0);",
-            "   targetVec = getVelocityField(currentPosition)*weightVelocityField*0.5;",
+            "   targetVec = getVelocityField(currentPosition)*weightVelocityField;",
             "   if (rotationZ >= 0.01) {",
             "      targetVec += getRotationalVelocityField(currentPosition, vec3(0.0, 0.0, 1.0), rotationZ);",
             "   }",
@@ -404,7 +404,7 @@ var initParticles = function() {
         geom.getPrimitives().push(new osg.DrawArrays(gl.POINTS,0,elements.length/3));
         node.addChild(geom);
         var b = node.getBound();
-        b.set([0.5, 0.5, 0.5], 1.0);
+        b.set([0.5, 0.5, 0.5], 0.5);
 
         var vertex = [
             "",
@@ -536,9 +536,12 @@ var initParticles = function() {
             osg.Matrix.makeIdentity(modelMatrix.get());
             if (timeObjects.ModelRotate.value > 0.0) {
                 var vec = [0,0,0];
-                vec[timeObjects.ModelRotate.axis] = 1.0;
+                vec[timeObjects.ModelRotate.axis] = timeObjects.ModelRotate.axisDirection;
                 osg.Matrix.makeRotate((1.0-timeObjects.ModelRotate.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+
+
             }
+            weightVelocityField.set([0.3 * (0.5 + 0.5*Math.cos((t+4.0)*0.2))]);
 //            osg.Matrix.postMult(osg.Matrix.makeRotate(timeObjects.FRQMusicRiff.value, 1,0,0, []), modelMatrix.get() );
             modelMatrix.dirty();
             

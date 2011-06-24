@@ -48,20 +48,15 @@ var timeSetup = function(eventData) {
                                                 );
     }
 
+    var axisIndex = 0;
     var selectAxis = function() {
-        var axis = Math.floor(Math.random()*2.0);
+        this.axis = axisIndex;
+        axisIndex = (axisIndex + 1)%2;
 
-        if (this.axis === undefined) {
-            this.axis = axis;
-            return;
+        this.axisDirection = 1;
+        if (0.5 - Math.random() < 0.0) {
+            this.axisDirection = -1;
         }
-
-        if (this.axis === axis) {
-            this.axis = (this.axis + 1)%2;
-        } else {
-            this.axis = axis;
-        }
-        osg.log("axis " + this.axis);
     };
 
 
@@ -124,18 +119,6 @@ var timeSetup = function(eventData) {
         0.00001
     );
 
-
-
-    if (false) {
-        anim("ModelRotateX",dictObject.ModelRotateX).to( 5.0,
-                                                         { value:1.0 },
-                                                         0.2,
-                                                         Timeline.Easing.Cubic.EaseIn
-                                                       ).to(
-                                                           { value:0.0},
-                                                           0.00001
-                                                       );
-    }
 
     return dictObject;
 };
