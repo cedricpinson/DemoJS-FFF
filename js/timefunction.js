@@ -60,8 +60,8 @@ var timeSetup = function(eventData) {
     };
 
 
-    dictObject.ModelRotate = { value: 0.0};
-    anim("ModelRotate",dictObject.ModelRotate).to(
+    dictObject.Text1 = { value: 0.0};
+    anim("Text1",dictObject.Text1).to(
         0.018,
         { value:1.0 },
         selectAxis,
@@ -89,8 +89,34 @@ var timeSetup = function(eventData) {
     ).to(
         { value:0.0},
         0.00001
+    );
+
+    dictObject.FreezeText = { value: 0.0};
+    anim("FreezeText", dictObject.FreezeText).to( 
+        0.018,
+        { value:1.0 },
+        0.0001,
+        Timeline.Easing.Linear.EaseNone
     ).to(
-        1.8,
+        0.5,
+        { value:0.0},
+        0.1
+    );
+    anim("FreezeText", dictObject.FreezeText).to( 
+        3.75,
+        { value:1.0 },
+        0.0001,
+        Timeline.Easing.Linear.EaseNone
+    ).to(
+        0.5,
+        { value:0.0},
+        0.1
+    );
+
+
+    dictObject.Text2 = { value: 0.0};
+    anim("Text2",dictObject.Text2).to(
+        3.75,
         { value:1.0 },
         selectAxis,
         0.1,

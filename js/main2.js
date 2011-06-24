@@ -50,10 +50,6 @@ var start2 = function() {
         }
     };
 
-    setTimeout(function() {
-        audioSound.play();
-    }, Math.floor(startMusic * 1000));
-
     grp.setUpdateCallback(new MainUpdate());
 
 

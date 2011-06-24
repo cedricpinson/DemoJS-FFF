@@ -72,9 +72,19 @@ var initParticles = function() {
             "   return pos;",
             "}",
             "",
+            "vec3 getSpawnPosition2(float offset) {",
+            "   vec3 center = vec3(0.5, 0.50, 0.5);",
+            "   vec3 size = vec3(0.7, 0.0,  0.4);",
+            "   vec3 corner = center - size*0.5;",
+            "   vec3 pos = vec3(size.x* FragTexCoord0.x, -offset + 0.1 + 0.1*cos(4.0*FragTexCoord0.x), size.z*FragTexCoord0.y + 0.05*cos(4.0*FragTexCoord0.x))+corner;",
+            "   //pos = center + (modelMatrix*(vec4(pos-center, 1.0))).xyz;",
+            "   material = 0.0;",
+            "   return pos;",
+            "}",
             "vec3 getSpawnPosition(float offset) {",
-            "   return getSpawnModel(offset);",
-            "   vec3 center = vec3(0.5, 0.70, 0.5);",
+            "   return getSpawnPosition2(offset);",
+            "   //return getSpawnModel(offset);",
+            "   vec3 center = vec3(0.5, 0.50, 0.5);",
             "   vec3 size = vec3(0.7, 0.0,  0.4);",
             "   vec3 corner = center - size*0.5;",
             "   vec3 pos = vec3(size.x* FragTexCoord0.x, -offset + 0.1 + 0.1*cos(4.0*FragTexCoord0.x), size.z*FragTexCoord0.y + 0.05*cos(4.0*FragTexCoord0.x))+corner;",
@@ -145,7 +155,7 @@ var initParticles = function() {
             "   distance = getDistance(currentPosition)*weightDistanceMap;",
             "   if ( distance > 0.3) {",
             "      if (freeze == 1) {",
-            "         material = 1.0;",
+            "         material = distance;",
             "      }",
             "   }",
             "",
@@ -173,7 +183,8 @@ var initParticles = function() {
             "      if (life <= 3.0/255.0 && life >= 1.0/255.0) {",
             "         next = getSpawnPosition(0.0);",
             "      } else if (life < 1.0/255.0) {",
-            "         life = sin(FragTexCoord0.y*time*0.2) * 0.25 + cos(FragTexCoord0.x*time*1.5) * 0.25 + sin(time) * 0.25 + 0.74;",
+            "         //life = sin(FragTexCoord0.y*(time + 3.333333)*0.2) * 0.25 + cos(FragTexCoord0.x*time*1.5) * 0.25 + sin(time) * 0.25 + 0.74;",
+            "         life = sin((FragTexCoord0.y + FragTexCoord0.x*1.3333)*(time + 3.333333)*0.2) * 0.4 + 0.6;",
             "         next = getSpawnPosition(0.005);",
             "      } else {",
             "         next = currentPos*solidModel + (1.0 - solidModel) * verlet(previousPos, currentPos, dt);",
@@ -456,11 +467,12 @@ var initParticles = function() {
             "     distFromEdge = 1.0 - 2.0 * abs( distance-0.5);",
             "  }",
             "  color = vec4(x * alpha , y * alpha, z * alpha, alpha * distFromEdge);",
-            "  if (material > 0.5) {",
-            "  //if (distance > 0.5 && distance < .8 ) {",
+            "  if (material > 0.3 && material < 0.6) {",
             "     float b = 0.0 * (1.0-distance);",
             "     color = vec4(b, b, b, 1.0 * alpha);",
-            "  }",
+            "  } else { ",
+            "     color = vec4(0.0, 0.0, 0.0, 1.0 * 0.0);",
+            "  } ",
             "  gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
             "  gl_PointSize = 2.0;",
             "}",
@@ -517,11 +529,13 @@ var initParticles = function() {
             if (this.nbUpdate == 0) {
                 forceNewLife.set([1]);
                 solidModel.set([1.0]);
-            } else if (this.nbUpdate == 1) {
+            } else if (this.nbUpdate == 2) {
                 forceNewLife.set([0]);
                 solidModel.set([0.0]);
-            } else if (this.nbUpdate > 1) {
-                //solidModel.set([0.0]);
+
+            } else if (this.nbUpdate == 3) {
+                var audioSound = document.getElementById('zik');
+                audioSound.play();
             }
 
             weightVelocityField.set([0.0* (0.5 + 0.5*Math.cos(t*0.2))]);
@@ -534,19 +548,32 @@ var initParticles = function() {
             rotationX.set([0 * timeObjects.FRQMusicRiff.value]);
 
             osg.Matrix.makeIdentity(modelMatrix.get());
-            if (timeObjects.ModelRotate.value > 0.0) {
+
+            freeze.set([0.0]);
+
+            if (timeObjects.Text1.value > 0.0) {
                 var vec = [0,0,0];
-                vec[timeObjects.ModelRotate.axis] = timeObjects.ModelRotate.axisDirection;
-                osg.Matrix.makeRotate((1.0-timeObjects.ModelRotate.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
-
-
+                vec[timeObjects.Text1.axis] = timeObjects.Text1.axisDirection;
+                osg.Matrix.makeRotate((1.0-timeObjects.Text1.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
             }
+            weightDistanceMap.set([1.0]);
+
+            freeze.set([timeObjects.FreezeText.value]);
+
+            if (timeObjects.Text2.value > 0.0) {
+                var vec = [0,0,0];
+                vec[timeObjects.Text2.axis] = timeObjects.Text2.axisDirection;
+                osg.Matrix.makeRotate((1.0-timeObjects.Text2.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+                weightDistanceMap.set([timeObjects.Text2.value]);
+            }
+
             weightVelocityField.set([0.3 * (0.5 + 0.5*Math.cos((t+4.0)*0.2))]);
+
 //            osg.Matrix.postMult(osg.Matrix.makeRotate(timeObjects.FRQMusicRiff.value, 1,0,0, []), modelMatrix.get() );
             modelMatrix.dirty();
             
             
-            freeze.set([Math.floor(timeObjects.FRQMusicChangePattern.value)]);
+//            freeze.set([Math.floor(timeObjects.FRQMusicChangePattern.value)]);
 
             this.physics.switchBuffer();
             this.render.setDisplayTexture( this.physics.getDisplayTexture() );
@@ -564,22 +591,6 @@ var initParticles = function() {
 
     root.addChild(physics.root);
     root.addChild(render.root);
-
-
-    if (false) {
-        document.addEventListener(
-            "keydown", 
-            function(event) {
-                osg.log("freeze");
-                freeze.set([1]);
-                window.setTimeout(function() {
-                    freeze.set([0]);
-                    osg.log("unfreeze");
-                },600);
-            }, 
-            false);
-    }
-
 
     return root;
 
