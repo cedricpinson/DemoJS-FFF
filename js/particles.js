@@ -53,6 +53,10 @@ var initParticles = function() {
             "uniform float modelRotationZ;",
             "uniform float modelRotationX;",
             "uniform float seed;",
+
+            "uniform float equalizer;",
+            "uniform float equalizerLevel;",
+            
             "float life;",
             "float distance;",
             "float material;",
@@ -82,7 +86,19 @@ var initParticles = function() {
             "   material = 0.0;",
             "   return pos;",
             "}",
+            "vec3 getSpawnEqualizer(float offset) {",
+            "   vec3 center = vec3(0.5, 0.5, 0.3);",
+            "   vec3 size = vec3(0.2, 0.2,  0.0);",
+            "   vec3 corner = center - size*0.5;",
+            "   vec3 pos = vec3(size.x* FragTexCoord0.x, size.y*FragTexCoord0.y, offset * (0.3 + 0.5*seed)) + corner;",
+            "   material = 0.0;",
+            "   distance = 0.0;",
+            "   return pos;",
+            "}",
             "vec3 getSpawnPosition(float offset) {",
+            "   if (equalizer > 0.01) {",
+            "      return getSpawnEqualizer(offset);",
+            "   }",
             "   return getSpawnPosition2(offset);",
             "   //return getSpawnModel(offset);",
             "   vec3 center = vec3(0.5, 0.50, 0.5);",
@@ -119,6 +135,7 @@ var initParticles = function() {
             "   vec4 p2 = texture2D( PosZ, vec2(FragTexCoord0.x, FragTexCoord0.y));",
             "   life = p0[3];",
             "   material = p2[3];",
+            "   distance = p1[3];",
             "   return vec3(unpack(p0), unpack(p1), unpack(p2));",
             "}",
             "float getDistance(vec3 pos) {",
@@ -135,6 +152,24 @@ var initParticles = function() {
             "   dir = normalize(dir);",
             "   return dir;",
             "}",
+            "int pointInsideBoundingBox(vec3 center, vec3 size, vec3 pos) {",
+            "   vec3 diff = center - pos;",
+            "   if (diff[0] > size[0] || diff[0] < -size[0]) {",
+            "      return 0;",
+            "   }",
+            "   if (diff[1] > size[1] || diff[1] < -size[1]) {",
+            "      return 0;",
+            "   }",
+            "   if (diff[2] > size[2] || diff[2] < -size[2]) {",
+            "      return 0;",
+            "   }",
+            "   return 1;",
+            "}",
+            "vec3 getEqualizerDirection(vec3 center, vec3 pos) {",
+            "   vec3 diff = center - pos;",
+            "   //dir = normalize(diff);",
+            "   return diff;",
+            "}",
             "vec3 verlet(vec3 prevPosition, vec3 currentPosition, float dt) {",
             "   vec3 center = vec3(0.5,0.5,0.5);",
             "   currentPosition = center+(modelMatrix * vec4(currentPosition-center,1.0)).xyz;",
@@ -146,14 +181,47 @@ var initParticles = function() {
             "   }",
             "   if (rotationX >= 0.01) {",
             "      targetVec += getRotationalVelocityField(currentPosition, vec3(1.0, 0.0, 0.0), rotationX);",
-            "   }",          
+            "   }",
             "   targetVec += getDirection(currentPosition)*weightDistanceMap*0.4;",
             "   ",
+            "   if (true || equalizer > 0.01) {",
+            "      vec3 boxCenter = vec3(0.5, 0.5, 0.1);",
+            "      float topBox = 1.0;",
+            "      float top = equalizerLevel * topBox;",
+            "      int result = pointInsideBoundingBox(boxCenter + vec3(0.0,0.0, top/2.0), vec3(0.2,0.2,top), currentPosition);",
+            "      result = 1;",
+            "      if (result > 0) {",
+            "         //vec3 impulse = vec3(currentPosition[0], currentPosition[1], top+ sin(seed * FragTexCoord0.x));",
+            "         //targetVec += (impulse - currentPosition)* 100.0;",
+            "         distance = 0.0 *(top-currentPosition.z)/topBox;",
+            "         material = 0.5;",
+            "         //life = 0.3 + .5 * seed;",
+            "      } else {",
+            "         float distFromTop = (top-currentPosition.z)/topBox;",
+            "         if (false && material >0.4 && distFromTop > 0.0) {",
+            "            distance = (distFromTop * distFromTop);",
+            "         }",
+            "         vec3 dir = getEqualizerDirection(boxCenter, currentPosition);",
+            "         //distance = length(dir);",
+            "         //targetVec += dir;",
+            "         if (false && life > 4.0/255.0 && material < 0.1) { // && true || material < 0.1) {",
+            "            life = 4.0/255.0; // make them respawn quickly",
+            "         }",
+            "      }",
+            "         targetVec += vec3(0.0, 0.0, 0.2);",
+            "      if (false && material >0.4) {",
+            "         targetVec += vec3(0.0, 0.0, -2.0);",
+            "      }",
+            "      distance = 0.0;",
+            "   }",
+            "",
             "   vec3 velocity = (currentPosition-prevPosition);",
             "   float wind = 1.0;",
             "   acceleration += targetVec ;", //* 0.5;",
             "   ",
-            "   distance = getDistance(currentPosition)*weightDistanceMap;",
+            "   if (weightDistanceMap > 0.001) {",
+            "      distance = getDistance(currentPosition)*weightDistanceMap;",
+            "   }",
             "   if (freeze == 1) {",
             "      if ( distance > 0.3) {",
             "         material = distance;",
@@ -267,6 +335,9 @@ var initParticles = function() {
     var rotationX = osg.Uniform.createFloat1(0.0,'rotationX');
     var modelMatrix = osg.Uniform.createMatrix4(osg.Matrix.makeIdentity([]),'modelMatrix');
     var uniformSeed = osg.Uniform.createFloat1(Math.random(),'seed');
+    var uniformEqualizer = osg.Uniform.createFloat1(0.0,'equalizer');
+    var uniformEqualizerLevel = osg.Uniform.createFloat1(0.0,'equalizerLevel');
+
 
     var Physics = function(cameras, textures) {
         this.cameras = cameras;
@@ -357,6 +428,9 @@ var initParticles = function() {
             stateset.addUniform(rotationX);
             stateset.addUniform(modelMatrix);
             stateset.addUniform(uniformSeed);
+            stateset.addUniform(uniformEqualizer);
+            stateset.addUniform(uniformEqualizerLevel);
+
 
             var idx;
             idx = (index + 1)%3;
@@ -476,9 +550,9 @@ var initParticles = function() {
             "  color = vec4(x * alpha , y * alpha, z * alpha, alpha * distFromEdge);",
             "  if (material > 0.3 && material < 0.6) {",
             "     float b = 0.0 * (1.0-distance);",
-            "     color = vec4(b, b, b, 1.0 * alpha);",
+            "     color = vec4(0.0, 0.0, 0.0, b* 1.0 * alpha);",
             "  } else { ",
-            "     color = vec4(0.0, 0.0, 0.0, 1.0 * 0.0);",
+            "     //color = vec4(0.0, 0.0, 0.0, 1.0 * 0.0);",
             "     gl_Position = vec4(0.0,0.0,-10000.0,1.0); // clip it",
             "     return;",
             "  } ",
@@ -547,50 +621,52 @@ var initParticles = function() {
             } else if (this.nbUpdate == 3) {
                 var audioSound = document.getElementById('zik');
                 audioSound.play();
+                audioSound.currentTime = 13.0;
             } else {
 
-            weightVelocityField.set([0.0* (0.5 + 0.5*Math.cos(t*0.2))]);
-            weightDistanceMap.set([0.0 * (0.5 + 0.5*Math.cos(t*0.666666))]);
-            rotationZ.set([0 * timeObjects.FRQMusicRiff.value]);
-            rotationX.set([0 * timeObjects.FRQMusicRiff.value]);
+                weightVelocityField.set([0.0* (0.5 + 0.5*Math.cos(t*0.2))]);
+                weightDistanceMap.set([0.0 * (0.5 + 0.5*Math.cos(t*0.666666))]);
+                rotationZ.set([0 * timeObjects.FRQMusicRiff.value]);
+                rotationX.set([0 * timeObjects.FRQMusicRiff.value]);
 
-            osg.Matrix.makeIdentity(modelMatrix.get());
+                osg.Matrix.makeIdentity(modelMatrix.get());
+                freeze.set([0.0]);
 
-            freeze.set([0.0]);
+                if (false) {
+                    if (timeObjects.Text1.value > 0.0) {
+                        var vec = [0,0,0];
+                        vec[timeObjects.Text1.axis] = timeObjects.Text1.axisDirection;
+                        osg.Matrix.makeRotate((1.0-timeObjects.Text1.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+                    } else if (timeObjects.Text2.value > 0.0) {
+                        var vec = [0,0,0];
+                        vec[timeObjects.Text2.axis] = timeObjects.Text2.axisDirection;
+                        osg.Matrix.makeRotate((1.0-timeObjects.Text2.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+                    }
+                    if (timeObjects.Text3.value > 0.0) {
+                        var vec = [0,0,0];
+                        vec[timeObjects.Text3.axis] = timeObjects.Text3.axisDirection;
+                        osg.Matrix.makeRotate((1.0-timeObjects.Text3.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+                    } else if (timeObjects.Text4.value > 0.0) {
+                        var vec = [0,0,0];
+                        vec[timeObjects.Text4.axis] = timeObjects.Text4.axisDirection;
+                        osg.Matrix.makeRotate((1.0-timeObjects.Text4.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+                    }
 
-            if (timeObjects.Text1.value > 0.0) {
-                var vec = [0,0,0];
-                vec[timeObjects.Text1.axis] = timeObjects.Text1.axisDirection;
-                osg.Matrix.makeRotate((1.0-timeObjects.Text1.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
-            } else if (timeObjects.Text2.value > 0.0) {
-                var vec = [0,0,0];
-                vec[timeObjects.Text2.axis] = timeObjects.Text2.axisDirection;
-                osg.Matrix.makeRotate((1.0-timeObjects.Text2.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+                    weightDistanceMap.set([0.8]);
+                    freeze.set([timeObjects.FreezeText.value]);
+                    rotationX.set([0.4]);
+
+                    modelMatrix.dirty();
+
+                } else {
+                    uniformEqualizer.get()[0] = 1.0; uniformEqualizer.dirty();
+                    
+                    uniformEqualizerLevel.get()[0] = (timeObjects.Text1.value + timeObjects.Text2.value + timeObjects.Text3.value + timeObjects.Text3.value + timeObjects.FRQMusicSnare.value); uniformEqualizerLevel.dirty();
+                    //rotationX.set([0.5]);
+                    rotationZ.set([0.5]);
+                }
             }
-            if (timeObjects.Text3.value > 0.0) {
-                var vec = [0,0,0];
-                vec[timeObjects.Text3.axis] = timeObjects.Text3.axisDirection;
-                osg.Matrix.makeRotate((1.0-timeObjects.Text3.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
-            } else if (timeObjects.Text4.value > 0.0) {
-                var vec = [0,0,0];
-                vec[timeObjects.Text4.axis] = timeObjects.Text4.axisDirection;
-                osg.Matrix.makeRotate((1.0-timeObjects.Text4.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
-            }
 
-            weightDistanceMap.set([0.8]);
-            freeze.set([timeObjects.FreezeText.value]);
-
-
-            //weightVelocityField.set([Math.random() * 0.4 * (0.5 + Math.cos((t+4.0)*0.2))]);
-            rotationX.set([0.4]);
-
-//            osg.Matrix.postMult(osg.Matrix.makeRotate(timeObjects.FRQMusicRiff.value, 1,0,0, []), modelMatrix.get() );
-            modelMatrix.dirty();
-            
-            
-//            freeze.set([Math.floor(timeObjects.FRQMusicChangePattern.value)]);
-
-            }
             this.physics.switchBuffer();
             this.render.setDisplayTexture( this.physics.getDisplayTexture() );
 

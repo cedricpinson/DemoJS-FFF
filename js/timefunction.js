@@ -18,6 +18,20 @@ var timeSetup = function(eventData) {
         "Note": "", 
         "Time": "00.918"
     });
+    
+    duration = { "FRQMusicSnare": 
+                 { 
+                     "start": 0.2,
+                     "stay": 0.001,
+                     "end": 0.5,
+                 },
+                 "FRQMusicKick": 
+                 { 
+                     "start": 0.2,
+                     "stay": 0.001,
+                     "end": 0.5,
+                 }
+               };
 
 
     for (var i = 0, l = eventData.length; i < l; i++) {
@@ -36,15 +50,24 @@ var timeSetup = function(eventData) {
             obj.note = note;
             dictObject[eventName] = obj;
         }
-        var duration = 0.01;
-        anim(eventName,dictObject[eventName]).to( time,
+
+        var start = 0.0001;
+        var stay = 0.5;
+        var end = 0.1;
+        if (duration[eventName] !== undefined) {
+            start = duration[eventName].start;
+            stay = duration[eventName].stay;
+            end = duration[eventName].end;
+        }
+        anim(eventName,dictObject[eventName]).to( time-start,
                                                   { value:1.0 },
-                                                  0.0001,
+                                                  start,
                                                   Timeline.Easing.Linear.EaseNone
                                                 ).to(
-                                                    0.5,
+                                                    stay,
                                                     { value:0.0},
-                                                    0.1
+                                                    end,
+                                                    Timeline.Easing.Linear.EaseNone
                                                 );
     }
 
