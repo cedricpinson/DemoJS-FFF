@@ -21,15 +21,15 @@ var timeSetup = function(eventData) {
     
     duration = { "FRQMusicSnare": 
                  { 
-                     "start": 0.2,
-                     "stay": 0.001,
-                     "end": 0.5,
+                     "start": 0.1,
+                     "stay": 0.0001,
+                     "end": 0.1,
                  },
                  "FRQMusicKick": 
                  { 
-                     "start": 0.2,
-                     "stay": 0.001,
-                     "end": 0.5,
+                     "start": 0.1,
+                     "stay": 0.0001,
+                     "end": 0.1,
                  }
                };
 
