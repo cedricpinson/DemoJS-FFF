@@ -55,15 +55,49 @@ var initParticles = function() {
             "uniform float seed;",
 
             "uniform float equalizer;",
-            "uniform float equalizerLevel;",
+            "uniform float equalizerLevel0;",
+            "uniform float equalizerLevel1;",
+            "uniform float equalizerLevel2;",
+            "uniform float equalizerLevel3;",
 
-            "int introText;",
+            "int introTextScene;",
+            "int equalizerScene;",
             
             "float life;",
             "float distance;",
             "float material;",
             "const float PI = 3.1415926535;",
 
+            "const int equaNumber = 4;",
+            "vec3 equaBottom[equaNumber];",
+            "vec3 equaSize[equaNumber];",
+            "float equaLevel[equaNumber];",
+            "const vec3 equaBottom0 = vec3(0.2, 0.5, 0.2);",
+            "const vec3 equaSize0 = vec3(0.1, 0.5, 0.5);",
+
+            "const vec3 equaBottom1 = vec3(0.4, 0.5, 0.2);",
+            "const vec3 equaSize1 = vec3(0.1, 0.5, 0.5);",
+
+            "const vec3 equaBottom2 = vec3(0.6, 0.5, 0.2);",
+            "const vec3 equaSize2 = vec3(0.1, 0.5, 0.5);",
+
+            "const vec3 equaBottom3 = vec3(0.9, 0.5, 0.2);",
+            "const vec3 equaSize3 = vec3(0.1, 0.5, 0.5);",
+
+            "void initEquaArrays() {",
+            " equaBottom[0] = equaBottom0;",
+            " equaBottom[1] = equaBottom1;",
+            " equaBottom[2] = equaBottom2;",
+            " equaBottom[3] = equaBottom3;",
+            " equaSize[0] = equaSize0;",
+            " equaSize[1] = equaSize1;",
+            " equaSize[2] = equaSize2;",
+            " equaSize[3] = equaSize3;",
+            " equaLevel[0] = equalizerLevel0;", 
+            " equaLevel[1] = equalizerLevel1;", 
+            " equaLevel[2] = equalizerLevel2;", 
+            " equaLevel[3] = equalizerLevel3;",
+            "}",
             "int pointInsideBoundingBox(vec3 center, vec3 size, vec3 pos) {",
             "   vec3 diff = center - pos;",
             "   if (diff[0] > size[0] || diff[0] < -size[0]) {",
@@ -110,47 +144,25 @@ var initParticles = function() {
             "   material = 0.0;",
             "   return pos;",
             "}",
-            "float getEqualizerParticleID() {",
-            "   float id = FragTexCoord0.y*(511.0*512.0) + FragTexCoord0.x*511.0;",
-            "   return id;",
-            "}",
-            "vec3 getEqualizerParticleSpawn(float t, float h) {",
-            "   vec3 center = vec3(0.5, 0.5, 0.5);",
-            "   float speed = t;",
-            "   float radius = 0.4;",
-            "   vec3 rotate = vec3(cos(speed), sin(speed), h);",
-            "   return center + rotate*radius;",
-            "}",
-            "vec3 getSpawnEqualizer(float offset) {",
-            "   material = 0.0;",
-            "   distance = 0.0;",
-            "   float id = getEqualizerParticleID();",
-            "   return getEqualizerParticleSpawn((PI*id) / (512.0*256.0), offset);",
-            "   return getEqualizerParticleSpawn(1.0*(FragTexCoord0.y*FragTexCoord0.x*5.0*3.1415)*0.6, 0.00005 *cos(time));",
-            "   vec3 center = vec3(0.5, 0.5, 0.5);",
-            "   float speed = 1.0*(FragTexCoord0.y*FragTexCoord0.x*5.0*3.1415)*0.6;",
-            "   float radius = 0.2;",
-            "   if (offset > 0.0) {",
-            "      //speed += 1.0/60.0 *(FragTexCoord0.x) - 2.0/60.0 ;",
-            "   }",
-            "   vec3 rotate = vec3(cos(speed), sin(speed), 0.05 *cos(time));",
-            "   return center + rotate*radius;",
-            "}",
+
             "vec3 getSpawnPosition(float offset) {",
-            "   if (equalizer > 0.01) {",
+
+            "   if (equalizerScene == 1) {",
             "      vec3 bottom = vec3(0.5, 0.5, 0.2);",
             "      vec3 size = vec3(0.1, 1.0, 0.5);",
             "      vec3 center = vec3(bottom.x, bottom.y, bottom.z+size.z/2.0);",
             "      return getSpawnPositionBoundingBox(center, size, -offset);",
-            "      return getSpawnEqualizer(offset);",
             "   }",
-            "   return getSpawnPosition2(offset);",
+
+            "   if (introTextScene == 1) {",
+            "      return getSpawnPosition2(offset);",
+            "   }",
+
             "   //return getSpawnModel(offset);",
             "   vec3 center = vec3(0.5, 0.50, 0.5);",
             "   vec3 size = vec3(0.7, 0.0,  0.4);",
             "   vec3 corner = center - size*0.5;",
             "   vec3 pos = vec3(size.x* FragTexCoord0.x, -offset + 0.1 + 0.1*cos(4.0*FragTexCoord0.x), size.z*FragTexCoord0.y + 0.05*cos(4.0*FragTexCoord0.x))+corner;",
-            "   //pos = center + (modelMatrix*(vec4(pos-center, 1.0))).xyz;",
             "   material = 0.0;",
             "   return pos;",
             "}",
@@ -168,29 +180,6 @@ var initParticles = function() {
             "   float vz = cos(pos.z*2.0*t);",
             "   vec3 vel = vec3( vx, vy, vz);",
             "   return normalize(vel);",
-            "}",
-            "vec3 getEqualizorField(float radiusMin, float radiusMax, vec3 pos, float virtualCursor) {",
-            "   vec2 radius = vec2(radiusMin, radiusMax);",
-            "   vec3 center = vec3(0.5, 0.5, pos.z);",
-            "   vec3 diff = pos-center;",
-            "   float l = length(diff);",
-            "   if (l < radius[0] || l > radius[1]) {",
-            "      return vec3(0.0,0.0,0.0);",
-            "   }",
-            "   float a = acos(diff[0]/l);",
-            "   if (diff[1] > 0.0) {",
-            "     a = -a;",
-            "   }",
-            "   a = mod((a + 2.0*PI), 2.0*PI);",
-            "   float r = (virtualCursor - a)/ (2.0 *PI);",
-            "   float range = 0.1;",
-            "   float c = 1.0 - min(abs(r), range)/range;",
-            "   float v = smoothstep(0.0, 1.0, c);",
-            "   if (v < 0.000001) {",
-            "      v = -1.0;",
-            "   }",
-            "   return vec3(0.0, 0.0, equalizerLevel*v);",
-            "   //return center;",
             "}",
             "vec3 getPreviousPosition() {",
             "   vec4 p0 = texture2D( PreviousPosX, vec2(FragTexCoord0.x, FragTexCoord0.y));",
@@ -246,11 +235,7 @@ var initParticles = function() {
             "   dir = normalize(dir);",
             "   return dir;",
             "}",
-            "vec3 getEqualizerDirection(vec3 center, vec3 pos) {",
-            "   vec3 diff = center - pos;",
-            "   //dir = normalize(diff);",
-            "   return diff;",
-            "}",
+            
             "vec3 verlet(vec3 prevPosition, vec3 currentPosition, float dt) {",
             "   vec3 center = vec3(0.5,0.5,0.5);",
             "   currentPosition = center+(modelMatrix * vec4(currentPosition-center,1.0)).xyz;",
@@ -267,7 +252,7 @@ var initParticles = function() {
             "      targetVec += getRotationalVelocityField(currentPosition, vec3(1.0, 0.0, 0.0), rotationX);",
             "   }",
 
-            "   if (introText == 1) { // need to have a flag for the text part",
+            "   if (introTextScene == 1) { // need to have a flag for the text part",
             "      targetVec += getDirection(currentPosition)*weightDistanceMap*0.4;",
             "      if (weightDistanceMap > 0.001) {",
             "         distance = getDistance(currentPosition)*weightDistanceMap;",
@@ -280,46 +265,22 @@ var initParticles = function() {
             "   }",
             "   ",
 
-            "   #define NEW_EQUALIZER",
-            "   #ifndef NEW_EQUALIZER",
-            "   if (false) {",
-            "   if (equalizer > 0.01 && material > 0.5) {",
-            "      //material = 0.5;",
-            "      float t = mod(time, 2.0*PI);",
-            "      float tid = getEqualizerParticleID()* PI/(512.0*256.0);",
-            "      float diff = min(abs(t-tid), PI/8.0)/(PI/8.0);",
-            "      float v = 0.01*max(1.0,length(velocity));",
-            "      float r = (1.0-(diff*diff));",
-            "      float amp = max(equalizerLevel, 0.0);",
-            "      material = 0.49;",
-            "      wind = 0.0;",
-            "      prevPosition = currentPosition;",
-            "      currentPosition = currentPosition + vec3(0.0, 0.0, v*r*amp*15.0);",
-            "      //velocity = currentPosition - prevPosition;",
-            "      }",
-            "   } else {",
-            "      float t = mod(-time, 2.0*PI);",
-            "      vec3 field = getEqualizorField(0.1, 0.5, currentPosition, t);",
-            "         //material = 0.5;",
-            "      if (field.z > 0.0001) {",
-            "         material = 0.5;",
-            "      }",
-            "      float offset = (FragTexCoord0.x + FragTexCoord0.y)*0.01;",
-            "      field.z = (field.z*0.99 + offset);",
-            "      //targetVec += field*100.0;",
-            "      //targetVec += getRotationalVelocityField(currentPosition, vec3(1.0, 0.0, 1.0), 2.0);",
-            "      currentPosition = currentPosition + field*.01;",
-           "       wind = 0.0;",
-            "   }",
-            "   #else //NEW_EQUALIZER",
-            "   if (equalizer > 0.01) {",
-            "     //material = 0.5;",
-            "     vec3 bottom = vec3(0.5, 0.5, 0.2);",
-            "     vec3 size = vec3(0.1, 1.0, 0.5);",
-            "     size.z *= equalizerLevel;",
-            "     targetVec += getDirectionEqua(bottom, size, currentPosition)*weightDistanceMap*0.4;",
-            "     if (weightDistanceMap > 0.001) {",
-            "        distance = getDistanceEqua(bottom, size, currentPosition)*weightDistanceMap;",
+            "   if (equalizerScene == 1) {",
+            "     initEquaArrays();", 
+            "     for (int i = 0; i < 1; i++) {",
+            "        vec3 bottom = equaBottom[i];",
+            "        vec3 size = equaSize[i];",
+            "        size.z *= 1.0; //equaLevel[i];",
+            "        vec3 center = bottom + vec3(0.0, 0.0, size.z/2.0);",
+            "        if (pointInsideBoundingBox(center, size, currentPosition) == 0) {",
+            "           continue;",
+            "        }",
+            "        targetVec += getDirectionEqua(bottom, size, currentPosition)*weightDistanceMap*0.4;",
+            "        distance = 1.0;",
+            "        if (weightDistanceMap > 0.001) {",
+            "          distance = getDistanceEqua(bottom, size, currentPosition)*weightDistanceMap;",
+            "        }",
+            "        break;",
             "     }",
             "     if (true || freeze == 1) {",
             "        if ( distance > 0.3) {",
@@ -327,7 +288,6 @@ var initParticles = function() {
             "        }",
             "     }",
             "   }",
-            "   #endif // NEW_EQUALIZER",
             "",
             "   acceleration += targetVec ;", //* 0.5;",
             "   ",
@@ -344,9 +304,12 @@ var initParticles = function() {
             "}",
             "",
             "void main(void) {",
-            "   introText = 0;",
-            "   if (equalizer < 0.0001) {",
-            "      introText = 1;",
+            "   introTextScene = 0;",
+            "   equalizerScene = 0;",
+            "   if (equalizer < 0.001) {",
+            "      introTextScene = 1;",
+            "   } else {",
+            "      equalizerScene = 1;",
             "   }",
 
             "   float dt = 1.0/60.0;",
@@ -456,7 +419,10 @@ var initParticles = function() {
     var modelMatrix = osg.Uniform.createMatrix4(osg.Matrix.makeIdentity([]),'modelMatrix');
     var uniformSeed = osg.Uniform.createFloat1(Math.random(),'seed');
     var uniformEqualizer = osg.Uniform.createFloat1(0.0,'equalizer');
-    var uniformEqualizerLevel = osg.Uniform.createFloat1(0.0,'equalizerLevel');
+    var uniformEqualizerLevel0 = osg.Uniform.createFloat1(0.0,'equalizerLevel0');
+    var uniformEqualizerLevel1 = osg.Uniform.createFloat1(0.0,'equalizerLevel1');
+    var uniformEqualizerLevel2 = osg.Uniform.createFloat1(0.0,'equalizerLevel2');
+    var uniformEqualizerLevel3 = osg.Uniform.createFloat1(0.0,'equalizerLevel3');
 
 
     var Physics = function(cameras, textures) {
@@ -549,7 +515,10 @@ var initParticles = function() {
             stateset.addUniform(modelMatrix);
             stateset.addUniform(uniformSeed);
             stateset.addUniform(uniformEqualizer);
-            stateset.addUniform(uniformEqualizerLevel);
+            stateset.addUniform(uniformEqualizerLevel0);
+            stateset.addUniform(uniformEqualizerLevel1);
+            stateset.addUniform(uniformEqualizerLevel2);
+            stateset.addUniform(uniformEqualizerLevel3);
 
 
             var idx;
@@ -791,7 +760,7 @@ var initParticles = function() {
 
                     uniformEqualizer.get()[0] = 1.0; uniformEqualizer.dirty();
                     
-                    uniformEqualizerLevel.get()[0] = 0.0 + 1.0 * (timeObjects.Text1.value + timeObjects.Text2.value + timeObjects.Text3.value + timeObjects.Text3.value + timeObjects.FRQMusicSnare.value); uniformEqualizerLevel.dirty();
+                    uniformEqualizerLevel0.get()[0] = 0.0 + 1.0 * (timeObjects.Text1.value + timeObjects.Text2.value + timeObjects.Text3.value + timeObjects.Text3.value + timeObjects.FRQMusicSnare.value); uniformEqualizerLevel0.dirty();
                     rotationX.set([0.0]);
                     rotationZ.set([0.0]);
                     //weightVelocityField.set([1.0* (0.5 + 0.5*Math.cos(t*0.1))]);

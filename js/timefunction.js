@@ -30,7 +30,7 @@ var timeSetup = function(eventData) {
                      "start": 0.1,
                      "stay": 0.0001,
                      "end": 0.1,
-                 }
+                 },
                };
 
 
