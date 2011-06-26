@@ -94,7 +94,7 @@ var initParticles = function() {
             "vec3 getEqualizerParticleSpawn(float t, float h) {",
             "   vec3 center = vec3(0.5, 0.5, 0.5);",
             "   float speed = t;",
-            "   float radius = 0.2;",
+            "   float radius = 0.4;",
             "   vec3 rotate = vec3(cos(speed), sin(speed), h);",
             "   return center + rotate*radius;",
             "}",
@@ -135,14 +135,15 @@ var initParticles = function() {
             "   return vec*dist;",
             "}",
             "vec3 getVelocityField(vec3 pos) {",
-            "   float vx = 0.0+cos(0.5+2.0*(pos.x*pos.x*time));",
-            "   float vy = cos(4.0*(pos.y*time+ seed*0.5)) + seed * sin(4.0*pos.x*time*time);",
-            "   float vz = cos(pos.z*2.0*time);",
+            "   float t = mod(time,15.0); //mod(time, 5.0);",
+            "   float vx = 0.0+cos(0.5+2.0*(pos.x*pos.x*t));",
+            "   float vy = cos(4.0*(pos.y*t+ seed*0.5)) + seed * sin(4.0*pos.x*t*t);",
+            "   float vz = cos(pos.z*2.0*t);",
             "   vec3 vel = vec3( vx, vy, vz);",
             "   return normalize(vel);",
             "}",
-            "vec3 getEqualizorField(vec3 pos, float virtualCursor) {",
-            "   vec2 radius = vec2(0.1, 0.5);",
+            "vec3 getEqualizorField(float radiusMin, float radiusMax, vec3 pos, float virtualCursor) {",
+            "   vec2 radius = vec2(radiusMin, radiusMax);",
             "   vec3 center = vec3(0.5, 0.5, pos.z);",
             "   vec3 diff = pos-center;",
             "   float l = length(diff);",
@@ -228,6 +229,8 @@ var initParticles = function() {
             "   float wind = 1.0;",
             "   vec3 velocity = (currentPosition-prevPosition);",
 
+            "   #define NEW_EQUALIZER",
+            "   #ifndef NEW_EQUALIZER",
             "   if (false) {",
             "   if (equalizer > 0.01 && material > 0.5) {",
             "      //material = 0.5;",
@@ -244,18 +247,21 @@ var initParticles = function() {
             "      //velocity = currentPosition - prevPosition;",
             "      }",
             "   } else {",
-            "      float t = mod(-time*2.0, 2.0*PI);",
-            "      vec3 field = getEqualizorField(currentPosition, t);",
+            "      float t = mod(-time, 2.0*PI);",
+            "      vec3 field = getEqualizorField(0.1, 0.5, currentPosition, t);",
             "         //material = 0.5;",
             "      if (field.z > 0.0001) {",
             "         material = 0.5;",
             "      }",
-            "      //targetVec += field*100.0;",
             "      float offset = (FragTexCoord0.x + FragTexCoord0.y)*0.01;",
             "      field.z = (field.z*0.99 + offset);",
+            "      //targetVec += field*100.0;",
+            "      //targetVec += getRotationalVelocityField(currentPosition, vec3(1.0, 0.0, 1.0), 2.0);",
             "      currentPosition = currentPosition + field*.01;",
-           "      //wind = 3.0;",
+           "       wind = 0.0;",
             "   }",
+            "   #else NEW_EQUALIZER",
+            "   #endif // NEW_EQUALIZER",
             "",
             "   acceleration += targetVec ;", //* 0.5;",
             "   ",
@@ -596,8 +602,8 @@ var initParticles = function() {
             "     float b = (1.0-distance);",
             "     color = vec4(0.0, 0.0, 0.0, b * 1.0 * alpha);",
             "  } else { ",
-            "     gl_Position = vec4(0.0,0.0,-10000.0,1.0); // clip it",
-            "     return;",
+            "     //gl_Position = vec4(0.0,0.0,-10000.0,1.0); // clip it",
+            "     //return;",
             "  } ",
             "  gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
             "  gl_PointSize = 2.0;",
@@ -664,7 +670,7 @@ var initParticles = function() {
             } else if (this.nbUpdate == 3) {
                 var audioSound = document.getElementById('zik');
                 audioSound.play();
-                audioSound.currentTime = 13.0;
+                audioSound.currentTime = 0.0;
             } else {
 
                 weightVelocityField.set([0.0* (0.5 + 0.5*Math.cos(t*0.2))]);
@@ -675,7 +681,7 @@ var initParticles = function() {
                 osg.Matrix.makeIdentity(modelMatrix.get());
                 freeze.set([0.0]);
 
-                if (false) {
+                if (true) {
                     if (timeObjects.Text1.value > 0.0) {
                         var vec = [0,0,0];
                         vec[timeObjects.Text1.axis] = timeObjects.Text1.axisDirection;
@@ -705,9 +711,9 @@ var initParticles = function() {
                     uniformEqualizer.get()[0] = 1.0; uniformEqualizer.dirty();
                     
                     uniformEqualizerLevel.get()[0] = 0.0 + 1.0 * (timeObjects.Text1.value + timeObjects.Text2.value + timeObjects.Text3.value + timeObjects.Text3.value + timeObjects.FRQMusicSnare.value); uniformEqualizerLevel.dirty();
-                    rotationX.set([0.3]);
-                    rotationZ.set([0.6]);
-                    weightVelocityField.set([0.5* (0.5 + 0.5*Math.cos(t*0.1))]);
+                    rotationX.set([0.0]);
+                    rotationZ.set([0.0]);
+                    weightVelocityField.set([1.0* (0.5 + 0.5*Math.cos(t*0.1))]);
                     //forceNewLife.set([1]);
                 }
             }
