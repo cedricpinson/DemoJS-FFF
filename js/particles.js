@@ -68,11 +68,12 @@ var initParticles = function() {
             "float material;",
             "const float PI = 3.1415926535;",
 
+            "const int equaNumberDisplay = 4;",
             "const int equaNumber = 4;",
             "vec3 equaBottom[equaNumber];",
             "vec3 equaSize[equaNumber];",
             "float equaLevel[equaNumber];",
-            "const vec3 equaBottom0 = vec3(0.5, 0.5, 0.2);",
+            "const vec3 equaBottom0 = vec3(0.2, 0.5, 0.2);",
             "const vec3 equaSize0 = vec3(0.1, 0.5, 0.5);",
 
             "const vec3 equaBottom1 = vec3(0.4, 0.5, 0.2);",
@@ -81,7 +82,7 @@ var initParticles = function() {
             "const vec3 equaBottom2 = vec3(0.6, 0.5, 0.2);",
             "const vec3 equaSize2 = vec3(0.1, 0.5, 0.5);",
 
-            "const vec3 equaBottom3 = vec3(0.9, 0.5, 0.2);",
+            "const vec3 equaBottom3 = vec3(0.8, 0.5, 0.2);",
             "const vec3 equaSize3 = vec3(0.1, 0.5, 0.5);",
 
             "void initEquaArrays() {",
@@ -129,10 +130,11 @@ var initParticles = function() {
             "   return pos;",
             "}",
             "",
-            "vec3 getSpawnPositionBoundingBox(vec3 center, vec3 size, float offset) {",
+            "vec3 getSpawnPositionBoundingBox(vec3 center, vec3 size, float offset, float y) {",
             "   vec3 corner = center - size*0.5;",
-            "   vec3 pos = vec3(size.x * FragTexCoord0.x, offset , size.z*FragTexCoord0.y)+corner;",
+            "   vec3 pos = vec3(size.x * FragTexCoord0.x, offset , size.z*y)+corner;",
             "   material = 0.0;",
+            "   distance = 0.0;",
             "   return pos;",
             "}",
             "vec3 getSpawnPosition2(float offset) {",
@@ -146,17 +148,24 @@ var initParticles = function() {
             "}",
 
             "vec3 getSpawnPosition(float offset) {",
-
-            "   if (equalizerScene == 1) {",
-            "      vec3 bottom = vec3(0.5, 0.5, 0.2);",
-            "      vec3 size = vec3(0.1, 1.0, 0.5);",
-            "      vec3 center = vec3(bottom.x, bottom.y, bottom.z+size.z/2.0);",
-            "      return getSpawnPositionBoundingBox(center, size, -offset);",
+            "   const float equaRange = 0.5;",
+            "   if (equalizerScene == 1 && FragTexCoord0.y < equaRange) {",
+            "      float step = equaRange/float(equaNumber);",
+            "      for (int i = 0; i < equaNumberDisplay; i++) {",
+            "         if (FragTexCoord0.y < float(i+1)*step) {",
+            "            vec3 bottom = equaBottom[i];",
+            "            vec3 size = equaSize[i];",
+            "            vec3 center = vec3(bottom.x, bottom.y, bottom.z+size.z/2.0);",
+            "            return getSpawnPositionBoundingBox(center, size, -offset*.03, (FragTexCoord0.y-(float(i)*step))/step);",
+            "         }",
+            "      }",
             "   }",
 
             "   if (introTextScene == 1) {",
             "      return getSpawnPosition2(offset);",
             "   }",
+            "   material = 0.0;",
+            "   return vec3(0.0, -1000000.0, 0.0);",
 
             "   //return getSpawnModel(offset);",
             "   vec3 center = vec3(0.5, 0.50, 0.5);",
@@ -215,27 +224,6 @@ var initParticles = function() {
             "   pos2 = pos2 / vec3(size.x, 1.0, size.z);",
             "   return vec2(pos2.x + 0.5, pos2.z + 0.5);",
             "}",
-            "float getDistanceEqua(vec3 bottom, vec3 size, vec3 pos) {",
-            "   vec3 center = bottom + vec3(0.0, 0.0, size.z/2.0);",
-            "   vec3 diff = pos - center;",
-            "   if (pointInsideBoundingBox(center, size, pos) == 0) {",
-            "     return 0.0;",
-            "   }",
-            "   return texture2D( DistanceMap, computeUV(center,size, diff)).b;",
-            "}",
-            "vec3 getDirectionEqua(vec3 bottom, vec3 size, vec3 pos) {",
-            "   vec3 center = bottom + vec3(0.0, 0.0, size.z/2.0);",
-            "   vec3 diff = pos - center;",
-            "   if (pointInsideBoundingBox(center, size, pos) == 0) {",
-            "     return pos;",
-            "   }",
-            "   vec4 d = texture2D( DistanceMap, computeUV(center,size, diff));",
-            "   vec2 grad = d.rg;",
-            "   vec3 dir = vec3(0.5-grad[0], 0.125*(0.5-pos.y), 0.5-grad[1]);",
-            "   dir = normalize(dir);",
-            "   return dir;",
-            "}",
-            
             "vec3 verlet(vec3 prevPosition, vec3 currentPosition, float dt) {",
             "   vec3 center = vec3(0.5,0.5,0.5);",
             "   currentPosition = center+(modelMatrix * vec4(currentPosition-center,1.0)).xyz;",
@@ -262,12 +250,8 @@ var initParticles = function() {
             "           material = distance;",
             "         }",
             "      }",
-            "   }",
-            "   ",
-
-            "   if (equalizerScene == 1) {",
-            "     initEquaArrays();",
-            "     for (int i = 0; i < 1; i++) {",
+            "   } else if (equalizerScene == 1) {",
+            "     for (int i = 0; i < equaNumberDisplay; i++) {",
             "        vec3 bottom = equaBottom[i];",
             "        vec3 size = equaSize[i];",
             "        size.z *= equaLevel[i];",
@@ -275,14 +259,19 @@ var initParticles = function() {
             "        if (pointInsideBoundingBox(center, size, currentPosition) == 0) {",
             "           continue;",
             "        }",
-            "        targetVec += getDirectionEqua(bottom, size, currentPosition)*weightDistanceMap*0.4;",
-            "        distance = 1.0;",
+            "        vec3 diff = currentPosition - center;",
+            "        vec4 texel = texture2D( DistanceMap, computeUV(center, size, diff));",
+            "        vec2 grad = texel.rg;",
+            "        vec3 dir = vec3(0.5-grad[0], 0.125*(0.5-currentPosition.y), 0.5-grad[1]);",
+            "        dir = normalize(dir);",
+            "        targetVec += dir * weightDistanceMap*0.4;",
+            "        //distance = 1.0;",
             "        if (weightDistanceMap > 0.001) {",
-            "          distance = getDistanceEqua(bottom, size, currentPosition)*weightDistanceMap;",
+            "            distance = texel.b * weightDistanceMap;",
             "        }",
             "        break;",
             "     }",
-            "     if ( distance > 0.3) {",
+            "     if ( distance > 0.5) {",
             "       material = distance;",
             "     }",
             "   }",
@@ -305,9 +294,10 @@ var initParticles = function() {
             "   introTextScene = 0;",
             "   equalizerScene = 0;",
             "   if (equalizer < 0.001) {",
-            "      introTextScene = 1;",
+            "     introTextScene = 1;",
             "   } else {",
-            "      equalizerScene = 1;",
+            "     equalizerScene = 1;",
+            "     initEquaArrays();",
             "   }",
 
             "   float dt = 1.0/60.0;",
@@ -649,9 +639,9 @@ var initParticles = function() {
             "     gl_PointSize = 2.0;",
             "     return;",
             "  }",
-            "  gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
-            "  //gl_Position = vec4(0.0,0.0,-10000.0,1.0); // clip it",
-            "  gl_PointSize = 2.0;",
+            "  //gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
+            "  gl_Position = vec4(0.0,0.0,-10000.0,1.0); // clip it",
+            "  gl_PointSize = 1.0;",
             "}",
             ""
         ].join('\n');
@@ -758,7 +748,11 @@ var initParticles = function() {
 
                     uniformEqualizer.get()[0] = 1.0; uniformEqualizer.dirty();
                     
-                    uniformEqualizerLevel0.get()[0] = 0.0 + 1.0 * (timeObjects.Text1.value + timeObjects.Text2.value + timeObjects.Text3.value + timeObjects.Text3.value + timeObjects.FRQMusicSnare.value); uniformEqualizerLevel0.dirty();
+                    uniformEqualizerLevel0.get()[0] = timeObjects.FRQMusicSnare.value; uniformEqualizerLevel0.dirty();
+                    uniformEqualizerLevel1.get()[0] = timeObjects.FRQMusicKick.value; uniformEqualizerLevel1.dirty();
+                    uniformEqualizerLevel2.get()[0] = timeObjects.FRQMusicRiff.value; uniformEqualizerLevel2.dirty();
+                    uniformEqualizerLevel3.get()[0] = (timeObjects.FRQMusicSound1.value + timeObjects.FRQMusicSound2.value + timeObjects.FRQMusicSound3.value); uniformEqualizerLevel3.dirty();
+
                     rotationX.set([0.0]);
                     rotationZ.set([0.0]);
                     //weightVelocityField.set([1.0* (0.5 + 0.5*Math.cos(t*0.1))]);
