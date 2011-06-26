@@ -56,11 +56,28 @@ var initParticles = function() {
 
             "uniform float equalizer;",
             "uniform float equalizerLevel;",
+
+            "int introText;",
             
             "float life;",
             "float distance;",
             "float material;",
             "const float PI = 3.1415926535;",
+
+            "int pointInsideBoundingBox(vec3 center, vec3 size, vec3 pos) {",
+            "   vec3 diff = center - pos;",
+            "   if (diff[0] > size[0] || diff[0] < -size[0]) {",
+            "      return 0;",
+            "   }",
+            "   if (diff[1] > size[1] || diff[1] < -size[1]) {",
+            "      return 0;",
+            "   }",
+            "   if (diff[2] > size[2] || diff[2] < -size[2]) {",
+            "      return 0;",
+            "   }",
+            "   return 1;",
+            "}",
+
             "float unpack(vec4 vec) {",
             "  return vec[0] * 255.0 / 256.0 + vec[1] * 255.0 / (256.0 * 256.0) + vec[2] * 255.0 / (256.0 * 256.0 * 256.0);",
             "}",
@@ -114,7 +131,7 @@ var initParticles = function() {
             "   return center + rotate*radius;",
             "}",
             "vec3 getSpawnPosition(float offset) {",
-            "   if (equalizer > 0.01) {",
+            "   if (false && equalizer > 0.01) {",
             "      return getSpawnEqualizer(offset);",
             "   }",
             "   return getSpawnPosition2(offset);",
@@ -194,18 +211,30 @@ var initParticles = function() {
             "   dir = normalize(dir);",
             "   return dir;",
             "}",
-            "int pointInsideBoundingBox(vec3 center, vec3 size, vec3 pos) {",
-            "   vec3 diff = center - pos;",
-            "   if (diff[0] > size[0] || diff[0] < -size[0]) {",
-            "      return 0;",
+            "vec2 computeUV(vec3 center, vec3 size , vec3 pos) {",
+            "   vec3 pos2 = pos;",
+            "   pos2 = pos2 / vec3(size.x, 1.0, size.z);",
+            "   return vec2(pos2.x + 0.5, pos2.z + 0.5);",
+            "}",
+            "float getDistanceEqua(vec3 bottom, vec3 size, vec3 pos) {",
+            "   vec3 center = bottom + vec3(0.0, 0.0, size.z/2.0);",
+            "   vec3 diff = pos - center;",
+            "   if (pointInsideBoundingBox(center, size, pos) == 0) {",
+            "     return 0.0;",
             "   }",
-            "   if (diff[1] > size[1] || diff[1] < -size[1]) {",
-            "      return 0;",
+            "   return texture2D( DistanceMap, computeUV(center,size, diff)).b;",
+            "}",
+            "vec3 getDirectionEqua(vec3 bottom, vec3 size, vec3 pos) {",
+            "   vec3 center = bottom + vec3(0.0, 0.0, size.z/2.0);",
+            "   vec3 diff = pos - center;",
+            "   if (pointInsideBoundingBox(center, size, pos) == 0) {",
+            "     return pos;",
             "   }",
-            "   if (diff[2] > size[2] || diff[2] < -size[2]) {",
-            "      return 0;",
-            "   }",
-            "   return 1;",
+            "   vec4 d = texture2D( DistanceMap, computeUV(center,size, diff));",
+            "   vec2 grad = d.rg;",
+            "   vec3 dir = vec3(0.5-grad[0], 0.125*(0.5-pos.y), 0.5-grad[1]);",
+            "   dir = normalize(dir);",
+            "   return dir;",
             "}",
             "vec3 getEqualizerDirection(vec3 center, vec3 pos) {",
             "   vec3 diff = center - pos;",
@@ -215,19 +244,31 @@ var initParticles = function() {
             "vec3 verlet(vec3 prevPosition, vec3 currentPosition, float dt) {",
             "   vec3 center = vec3(0.5,0.5,0.5);",
             "   currentPosition = center+(modelMatrix * vec4(currentPosition-center,1.0)).xyz;",
+            "   float wind = 1.0;",
+            "   vec3 velocity = (currentPosition-prevPosition);",
             "   vec3 acceleration = vec3(0.0, 0.0, 0.0*(-9.81 + 9.5));",
             "   vec3 targetVec = vec3(0.0,0.0,0.0);",
             "   targetVec = getVelocityField(currentPosition)*weightVelocityField;",
+
             "   if (rotationZ >= 0.01) {",
             "      targetVec += getRotationalVelocityField(currentPosition, vec3(0.0, 0.0, 1.0), rotationZ);",
             "   }",
             "   if (rotationX >= 0.01) {",
             "      targetVec += getRotationalVelocityField(currentPosition, vec3(1.0, 0.0, 0.0), rotationX);",
             "   }",
-            "   targetVec += getDirection(currentPosition)*weightDistanceMap*0.4;",
+
+            "   if (introText == 1) { // need to have a flag for the text part",
+            "      targetVec += getDirection(currentPosition)*weightDistanceMap*0.4;",
+            "      if (weightDistanceMap > 0.001) {",
+            "         distance = getDistance(currentPosition)*weightDistanceMap;",
+            "      }",
+            "      if (freeze == 1) {",
+            "         if ( distance > 0.3) {",
+            "           material = distance;",
+            "         }",
+            "      }",
+            "   }",
             "   ",
-            "   float wind = 1.0;",
-            "   vec3 velocity = (currentPosition-prevPosition);",
 
             "   #define NEW_EQUALIZER",
             "   #ifndef NEW_EQUALIZER",
@@ -260,20 +301,26 @@ var initParticles = function() {
             "      currentPosition = currentPosition + field*.01;",
            "       wind = 0.0;",
             "   }",
-            "   #else NEW_EQUALIZER",
+            "   #else //NEW_EQUALIZER",
+            "   if (equalizer > 0.01) {",
+            "     //material = 0.5;",
+            "     vec3 cnt = vec3(0.5, 0.5, 0.2);",
+            "     vec3 size = vec3(0.1, 1.0, 0.5);",
+            "     size.z *= equalizerLevel;",
+            "     targetVec += getDirectionEqua(cnt, size, currentPosition)*weightDistanceMap*0.4;",
+            "     if (weightDistanceMap > 0.001) {",
+            "        distance = getDistanceEqua(cnt, size, currentPosition)*weightDistanceMap;",
+            "     }",
+            "     if (true || freeze == 1) {",
+            "        if ( distance > 0.3) {",
+            "           material = distance;",
+            "        }",
+            "     }",
+            "   }",
             "   #endif // NEW_EQUALIZER",
             "",
             "   acceleration += targetVec ;", //* 0.5;",
             "   ",
-            "   if (weightDistanceMap > 0.001) {",
-            "      distance = getDistance(currentPosition)*weightDistanceMap;",
-            "   }",
-            "   if (freeze == 1) {",
-            "      if ( distance > 0.3) {",
-            "         material = distance;",
-            "      }",
-            "   }",
-            "",
             "   float l = length(velocity);",
             "   vec3 dir = velocity;",
             "   float maxSpeed = 0.005;",
@@ -287,6 +334,11 @@ var initParticles = function() {
             "}",
             "",
             "void main(void) {",
+            "   introText = 0;",
+            "   if (equalizer < 0.0001) {",
+            "      introText = 1;",
+            "   }",
+
             "   float dt = 1.0/60.0;",
             "   vec3 previousPos = getPreviousPosition();",
             "   vec3 currentPos = getCurrentPosition();",
@@ -343,10 +395,18 @@ var initParticles = function() {
         root.setNodeMask(~0x0);
     };
 
+    var textureEqua = new osg.Texture();
+    var loadEqua = function() {
+        var img = new Image;
+        img.onload = ready;
+        img.src = 'equa_grad.png';
+        textureEqua.setImage(img);
+    };
+
     var textureDistance = new osg.Texture();
     var loadNext = function() {
         var img = new Image;
-        img.onload = ready;
+        img.onload = loadEqua;
         img.src = 'gradient.png';
         textureDistance.setImage(img);
     };
@@ -559,6 +619,7 @@ var initParticles = function() {
             "uniform sampler2D X;",
             "uniform sampler2D Y;",
             "uniform sampler2D Z;",
+            "uniform float equalizer;",
             "varying vec4 color;",
             "float life;",
             "float distance;",
@@ -598,14 +659,21 @@ var initParticles = function() {
             "     distFromEdge = 1.0 - 2.0 * abs( distance-0.5);",
             "  }",
             "  color = vec4(x * alpha , y * alpha, z * alpha, alpha * distFromEdge);",
-            "  if (material > 0.3 && material < 0.6) {",
+            "  if (equalizer >0.0 && distance > 0.5) {",
             "     float b = (1.0-distance);",
-            "     color = vec4(0.0, 0.0, 0.0, b * 1.0 * alpha);",
-            "  } else { ",
-            "     //gl_Position = vec4(0.0,0.0,-10000.0,1.0); // clip it",
-            "     //return;",
-            "  } ",
+            "     color = vec4(0.0, 0.0, 0.0, 1.0 * alpha);",
+            "     gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
+            "     gl_PointSize = 2.0;",
+            "     return ;",
+            "  } else if (material > 0.3 && material < 0.6) {",
+            "     float b = (1.0-distance);",
+            "     color = vec4(0.0, 0.0, 0.0, 1.0 * alpha);",
+            "     gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
+            "     gl_PointSize = 2.0;",
+            "     return;",
+            "  }",
             "  gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
+            "  gl_Position = vec4(0.0,0.0,-10000.0,1.0); // clip it",
             "  gl_PointSize = 2.0;",
             "}",
             ""
@@ -637,6 +705,7 @@ var initParticles = function() {
         stateset.addUniform(osg.Uniform.createInt1(0,"X"));
         stateset.addUniform(osg.Uniform.createInt1(1,"Y"));
         stateset.addUniform(osg.Uniform.createInt1(2,"Z"));
+        stateset.addUniform(uniformEqualizer);
 
         return new Render(node, stateset);
     };
@@ -670,7 +739,7 @@ var initParticles = function() {
             } else if (this.nbUpdate == 3) {
                 var audioSound = document.getElementById('zik');
                 audioSound.play();
-                audioSound.currentTime = 0.0;
+                audioSound.currentTime = 13.0;
             } else {
 
                 weightVelocityField.set([0.0* (0.5 + 0.5*Math.cos(t*0.2))]);
@@ -681,7 +750,7 @@ var initParticles = function() {
                 osg.Matrix.makeIdentity(modelMatrix.get());
                 freeze.set([0.0]);
 
-                if (true) {
+                if (false) {
                     if (timeObjects.Text1.value > 0.0) {
                         var vec = [0,0,0];
                         vec[timeObjects.Text1.axis] = timeObjects.Text1.axisDirection;
@@ -708,13 +777,17 @@ var initParticles = function() {
                     modelMatrix.dirty();
 
                 } else {
+                    this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureEqua, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+
                     uniformEqualizer.get()[0] = 1.0; uniformEqualizer.dirty();
                     
                     uniformEqualizerLevel.get()[0] = 0.0 + 1.0 * (timeObjects.Text1.value + timeObjects.Text2.value + timeObjects.Text3.value + timeObjects.Text3.value + timeObjects.FRQMusicSnare.value); uniformEqualizerLevel.dirty();
                     rotationX.set([0.0]);
                     rotationZ.set([0.0]);
-                    weightVelocityField.set([1.0* (0.5 + 0.5*Math.cos(t*0.1))]);
+                    //weightVelocityField.set([1.0* (0.5 + 0.5*Math.cos(t*0.1))]);
                     //forceNewLife.set([1]);
+                    weightDistanceMap.set([0.8]);
+                    freeze.set([1.0]);
                 }
             }
 
