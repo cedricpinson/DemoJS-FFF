@@ -67,7 +67,7 @@ var initParticles = function() {
             "float distance;",
             "float material;",
             "const float PI = 3.1415926535;",
-
+            "vec3 targetVec;",
             "const int equaNumberDisplay = 4;",
             "const int equaNumber = 4;",
             "vec3 equaBottom[equaNumber];",
@@ -132,7 +132,7 @@ var initParticles = function() {
             "",
             "vec3 getSpawnPositionBoundingBox(vec3 center, vec3 size, float offset, float y) {",
             "   vec3 corner = center - size*0.5;",
-            "   vec3 pos = vec3(size.x * FragTexCoord0.x, offset , size.z*y)+corner;",
+            "   vec3 pos = vec3(size.x * FragTexCoord0.x, offset , size.z*y +FragTexCoord0.x*0.001*cos(time))+corner;",
             "   material = 0.0;",
             "   distance = 0.0;",
             "   return pos;",
@@ -148,7 +148,7 @@ var initParticles = function() {
             "}",
 
             "vec3 getSpawnPosition(float offset) {",
-            "   const float equaRange = 0.5;",
+            "   const float equaRange = 1.000001;",
             "   if (equalizerScene == 1 && FragTexCoord0.y < equaRange) {",
             "      float step = equaRange/float(equaNumber);",
             "      for (int i = 0; i < equaNumberDisplay; i++) {",
@@ -224,13 +224,32 @@ var initParticles = function() {
             "   pos2 = pos2 / vec3(size.x, 1.0, size.z);",
             "   return vec2(pos2.x + 0.5, pos2.z + 0.5);",
             "}",
+            "int computeEqualizer(vec3 currentPosition, vec3 bottom, vec3 size, float level) {",
+            "        size.z *= level;",
+            "        vec3 center = bottom + vec3(0.0, 0.0, size.z/2.0);",
+            "        if (pointInsideBoundingBox(center, size, currentPosition) == 0) {",
+            "           return 0;",
+            "        }",
+            "        vec3 diff = currentPosition - center;",
+            "        vec4 texel = texture2D( DistanceMap, computeUV(center, size, diff));",
+            "        vec2 grad = texel.rg;",
+            "        vec3 dir = vec3(0.5-grad[0], 0.125*(0.5-currentPosition.y), 0.5-grad[1]);",
+            "        dir = normalize(dir);",
+            "        targetVec += dir * weightDistanceMap*0.4;",
+            "        //distance = 1.0;",
+            "        if (weightDistanceMap > 0.001) {",
+            "            distance = texel.b * weightDistanceMap;",
+            "        }",
+            "        return 1;",
+            "}",
+
             "vec3 verlet(vec3 prevPosition, vec3 currentPosition, float dt) {",
             "   vec3 center = vec3(0.5,0.5,0.5);",
             "   currentPosition = center+(modelMatrix * vec4(currentPosition-center,1.0)).xyz;",
             "   float wind = 1.0;",
             "   vec3 velocity = (currentPosition-prevPosition);",
             "   vec3 acceleration = vec3(0.0, 0.0, 0.0*(-9.81 + 9.5));",
-            "   vec3 targetVec = vec3(0.0,0.0,0.0);",
+            "   targetVec = vec3(0.0,0.0,0.0);",
             "   targetVec = getVelocityField(currentPosition)*weightVelocityField;",
 
             "   if (rotationZ >= 0.01) {",
@@ -251,6 +270,7 @@ var initParticles = function() {
             "         }",
             "      }",
             "   } else if (equalizerScene == 1) {",
+            "#if 0",   
             "     for (int i = 0; i < equaNumberDisplay; i++) {",
             "        vec3 bottom = equaBottom[i];",
             "        vec3 size = equaSize[i];",
@@ -274,6 +294,14 @@ var initParticles = function() {
             "     if ( distance > 0.5) {",
             "       material = distance;",
             "     }",
+            "#else",
+            "       if (FragTexCoord0.y <0.5) {", 
+            "        if (computeEqualizer(currentPosition, equaBottom0, equaSize0, equalizerLevel0) == 0) { ",
+            "           if (computeEqualizer(currentPosition, equaBottom1, equaSize1, equalizerLevel1) == 0) {",
+            "           if (computeEqualizer(currentPosition, equaBottom2, equaSize2, equalizerLevel2) == 0) {",
+            "           computeEqualizer(currentPosition, equaBottom3, equaSize3, equalizerLevel3);",
+            "        } } } }",
+            "#endif",
             "   }",
             "",
             "   acceleration += targetVec ;", //* 0.5;",
@@ -639,8 +667,8 @@ var initParticles = function() {
             "     gl_PointSize = 2.0;",
             "     return;",
             "  }",
-            "  //gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
-            "  gl_Position = vec4(0.0,0.0,-10000.0,1.0); // clip it",
+            "  gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
+            "  //gl_Position = vec4(0.0,0.0,-10000.0,1.0); // clip it",
             "  gl_PointSize = 1.0;",
             "}",
             ""
@@ -755,9 +783,9 @@ var initParticles = function() {
 
                     rotationX.set([0.0]);
                     rotationZ.set([0.0]);
-                    //weightVelocityField.set([1.0* (0.5 + 0.5*Math.cos(t*0.1))]);
+                    weightVelocityField.set([1.0* (0.5 + 0.5*Math.cos(t*0.1))]);
                     //forceNewLife.set([1]);
-                    weightDistanceMap.set([0.8]);
+                    weightDistanceMap.set([1.0]);
                     freeze.set([1.0]);
                 }
             }
