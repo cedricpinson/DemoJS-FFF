@@ -143,7 +143,7 @@ var initParticles = function() {
             "   vec3 center = vec3(0.5, 0.50, 0.5);",
             "   vec3 size = vec3(0.7, 0.0,  0.4);",
             "   vec3 corner = center - size*0.5;",
-            "   vec3 pos = vec3(size.x * FragTexCoord0.x, -offset + 0.1 + 0.1*cos(4.0*FragTexCoord0.x), size.z*FragTexCoord0.y + 0.05*cos(4.0*FragTexCoord0.x))+corner;",
+            "   vec3 pos = vec3(size.x * FragTexCoord0.x, 0.0*(-offset + 0.1 + 0.1*cos(4.0*FragTexCoord0.x)), size.z*FragTexCoord0.y + 0.05*cos(4.0*FragTexCoord0.x))+corner;",
             "   //pos = center + (modelMatrix*(vec4(pos-center, 1.0))).xyz;",
             "   material = 0.0;",
             "   return pos;",
@@ -165,7 +165,7 @@ var initParticles = function() {
             "   }",
 
             "   if (introTextScene == 1) {",
-            "      return getSpawnPosition2(offset);",
+            "      return getSpawnPosition2(0.0*offset);",
             "   }",
             "   material = 0.0;",
             "   return vec3(0.0, -1000000.0, 0.0);",
