@@ -60,8 +60,8 @@ var initParticles = function() {
             "uniform float equalizerLevel2;",
             "uniform float equalizerLevel3;",
 
-            "int introTextScene;",
-            "int equalizerScene;",
+            "uniform int introTextScene;",
+            "uniform int equalizerScene;",
             
             "float life;",
             "float distance;",
@@ -298,12 +298,7 @@ var initParticles = function() {
             "}",
             "",
             "void main(void) {",
-            "   introTextScene = 0;",
-            "   equalizerScene = 0;",
-            "   if (equalizer < 0.001) {",
-            "     introTextScene = 1;",
-            "   } else {",
-            "     equalizerScene = 1;",
+            "   if (equalizerScene == 1) {",
             "     initEquaArrays();",
             "   }",
 
@@ -314,7 +309,7 @@ var initParticles = function() {
             "      life = max(life-dt, 0.0);",
             "   }",
 
-            "   if (material > 0.3 && equalizer < 0.001) {",
+            "   if (material > 0.3 && equalizerScene == 0) {",
             "      life = max(life-dt/3.0, 0.0);",
             "   } else {",
             "      life = max(life-dt/1.5, 0.0);",
@@ -419,6 +414,8 @@ var initParticles = function() {
     var uniformEqualizerLevel2 = osg.Uniform.createFloat1(0.0,'equalizerLevel2');
     var uniformEqualizerLevel3 = osg.Uniform.createFloat1(0.0,'equalizerLevel3');
 
+    var uniformEqualizerScene = osg.Uniform.createInt1(0,'equalizerScene');
+    var uniformIntroTextScene = osg.Uniform.createInt1(0,'introTextScene');
 
     var Physics = function(cameras, textures) {
         this.cameras = cameras;
@@ -510,6 +507,8 @@ var initParticles = function() {
             stateset.addUniform(modelMatrix);
             stateset.addUniform(uniformSeed);
             stateset.addUniform(uniformEqualizer);
+            stateset.addUniform(uniformEqualizerScene);
+            stateset.addUniform(uniformIntroTextScene);
             stateset.addUniform(uniformEqualizerLevel0);
             stateset.addUniform(uniformEqualizerLevel1);
             stateset.addUniform(uniformEqualizerLevel2);
@@ -713,7 +712,7 @@ var initParticles = function() {
             } else if (this.nbUpdate == 3) {
                 var audioSound = document.getElementById('zik');
                 audioSound.play();
-                audioSound.currentTime = 13.0;
+                //audioSound.currentTime = 13.0;
             } else {
 
                 weightVelocityField.set([0.0* (0.5 + 0.5*Math.cos(t*0.2))]);
@@ -722,9 +721,14 @@ var initParticles = function() {
                 rotationX.set([0 * timeObjects.FRQMusicRiff.value]);
 
                 osg.Matrix.makeIdentity(modelMatrix.get());
-                freeze.set([0.0]);
+                freeze.get()[0] = 0.0; freeze.dirty();
+                
+                uniformEqualizerScene.get()[0] = 0; uniformEqualizerScene.dirty();
+                uniformIntroTextScene.get()[0] = 0; uniformIntroTextScene.dirty();
 
-                if (false) {
+                if (timeObjects.IntroScene.value > 0.5) {
+                    uniformIntroTextScene.get()[0] = 1.0; uniformIntroTextScene.dirty();
+
                     if (timeObjects.Text1.value > 0.0) {
                         var vec = [0,0,0];
                         vec[timeObjects.Text1.axis] = timeObjects.Text1.axisDirection;
@@ -749,8 +753,11 @@ var initParticles = function() {
                     rotationX.set([0.4]);
 
                     modelMatrix.dirty();
+                }
 
-                } else {
+                if (timeObjects.EqualizerScene.value > 0.5) {
+                    uniformEqualizerScene.get()[0] = 1; uniformEqualizerScene.dirty();
+                    
                     this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureEqua, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
 
                     uniformEqualizer.get()[0] = 1.0; uniformEqualizer.dirty();

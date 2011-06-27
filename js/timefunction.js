@@ -253,5 +253,32 @@ var timeSetup = function(eventData) {
     );
 
 
+
+
+    dictObject.IntroScene = { value: 0.0};
+    anim("IntroScene",dictObject.IntroScene).to(
+        0.0,
+        { value:1.0 },
+        0.00001,
+        Timeline.Easing.Linear.None
+    ).to(
+        14.756,
+        { value:0.0},
+        0.00001
+    );
+
+    dictObject.EqualizerScene = { value: 0.0};
+    anim("EqualizerScene",dictObject.EqualizerScene).to(
+        14.756,
+        { value:1.0 },
+        0.00001,
+        Timeline.Easing.Linear.None
+    ).to(
+        59.0,
+        { value:0.0},
+        0.00001
+    );
+    
+
     return dictObject;
 };
