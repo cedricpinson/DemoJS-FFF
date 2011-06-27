@@ -83,37 +83,6 @@ var timeSetup = function(eventData) {
     };
 
 
-    dictObject.Text1 = { value: 0.0};
-    anim("Text1",dictObject.Text1).to(
-        0.018,
-        { value:1.0 },
-        selectAxis,
-        0.1,
-        Timeline.Easing.Cubic.EaseIn
-    ).to(
-        0.0,
-        { value:0.0},
-        0.00001
-    ).to(
-        0.8,
-        { value:1.0 },
-        selectAxis,
-        0.1,
-        Timeline.Easing.Cubic.EaseIn
-    ).to(
-        { value:0.0},
-        0.00001
-    ).to(
-        0.8,
-        { value:1.0 },
-        selectAxis,
-        0.1,
-        Timeline.Easing.Cubic.EaseIn
-    ).to(
-        { value:0.0},
-        0.00001
-    );
-
     dictObject.FreezeText = { value: 0.0};
     anim("FreezeText", dictObject.FreezeText).to( 
         0.018,
@@ -157,6 +126,83 @@ var timeSetup = function(eventData) {
     );
 
 
+    dictObject.WindIntro = { value: 0.0};
+    var windStartValue = 6.0;
+    var windWaitValue = 0.7;
+    var windDurationRestore = 0.5;
+    anim("WindIntro",dictObject.WindIntro).to(
+        0.02,
+        { value: windStartValue },
+        0.000001,
+        Timeline.Easing.Cubic.EaseIn
+    ).to(
+        windWaitValue,
+        { value:0.0},
+        windDurationRestore
+    );
+    anim("WindIntro",dictObject.WindIntro).to(
+        3.75,
+        { value: windStartValue },
+        0.000001,
+        Timeline.Easing.Cubic.EaseIn
+    ).to(
+        windWaitValue,
+        { value:0.0},
+        windDurationRestore
+    );
+    anim("WindIntro",dictObject.WindIntro).to(
+        7.45,
+        { value: windStartValue },
+        0.000001,
+        Timeline.Easing.Cubic.EaseIn
+    ).to(
+        windWaitValue,
+        { value:0.0},
+        windDurationRestore
+    );
+    anim("WindIntro",dictObject.WindIntro).to(
+        11.1,
+        { value: windStartValue },
+        0.000001,
+        Timeline.Easing.Cubic.EaseIn
+    ).to(
+        windWaitValue,
+        { value:0.0},
+        windDurationRestore
+    );
+
+    dictObject.Text1 = { value: 0.0};
+    anim("Text1",dictObject.Text1).to(
+        0.02,
+        { value:1.0 },
+        selectAxis,
+        0.1,
+        Timeline.Easing.Cubic.EaseIn
+    ).to(
+        0.0,
+        { value:0.0},
+        0.00001
+    ).to(
+        0.8,
+        { value:1.0 },
+        selectAxis,
+        0.1,
+        Timeline.Easing.Cubic.EaseIn
+    ).to(
+        { value:0.0},
+        0.00001
+    ).to(
+        0.8,
+        { value:1.0 },
+        selectAxis,
+        0.1,
+        Timeline.Easing.Cubic.EaseIn
+    ).to(
+        { value:0.0},
+        0.00001
+    );
+
+
     dictObject.Text2 = { value: 0.0};
     anim("Text2",dictObject.Text2).to(
         3.75,
@@ -191,7 +237,7 @@ var timeSetup = function(eventData) {
 
     dictObject.Text3 = { value: 0.0};
     anim("Text3",dictObject.Text3).to(
-        7.4,
+        7.45,
         { value:1.0 },
         selectAxis,
         0.1,

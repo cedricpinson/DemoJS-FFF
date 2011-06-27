@@ -53,6 +53,7 @@ var initParticles = function() {
             "uniform float modelRotationZ;",
             "uniform float modelRotationX;",
             "uniform float seed;",
+            "uniform float windIntro;",
 
             "uniform float equalizer;",
             "uniform float equalizerLevel0;",
@@ -263,6 +264,7 @@ var initParticles = function() {
 
             "   if (introTextScene == 1) { // need to have a flag for the text part",
             "      targetVec += getDirection(currentPosition)*weightDistanceMap*0.4;",
+            "      wind = windIntro;",
             "      if (weightDistanceMap > 0.001) {",
             "         distance = getDistance(currentPosition)*weightDistanceMap;",
             "      }",
@@ -278,7 +280,7 @@ var initParticles = function() {
             "           if (computeEqualizer(currentPosition, equaBottom2, equaSize2, equalizerLevel2) == 0) {",
             "           computeEqualizer(currentPosition, equaBottom3, equaSize3, equalizerLevel3);",
             "        } } } }",
-            "     if ( distance > 0.3) {",
+            "     if ( distance > 0.5) {",
             "       material = distance;",
             "     }",
             "   }",
@@ -361,21 +363,45 @@ var initParticles = function() {
     var textureEqua = new osg.Texture();
     var loadEqua = function() {
         var img = new Image;
-        img.onload = ready;
+        img.onload = loadFR;
         img.src = 'equa_grad.png';
         textureEqua.setImage(img);
     };
 
-    var textureDistance = new osg.Texture();
-    var loadNext = function() {
+    var textureFR = new osg.Texture();
+    var loadFR = function() {
         var img = new Image;
-        img.onload = loadEqua;
-        img.src = 'gradient.png';
-        textureDistance.setImage(img);
+        img.onload = loadSY;
+        img.src = 'FRequency_grad.png';
+        textureFR.setImage(img);
+    };
+
+    var textureSY = new osg.Texture();
+    var loadSY = function() {
+        var img = new Image;
+        img.onload = loadBy;
+        img.src = 'SynRJ_grad.png';
+        textureSY.setImage(img);
+    };
+
+    var textureBy = new osg.Texture();
+    var loadBy = function() {
+        var img = new Image;
+        img.onload = loadTitle;
+        img.src = 'By_grad.png';
+        textureBy.setImage(img);
+    };
+
+    var textureTitle = new osg.Texture();
+    var loadTitle = function() {
+        var img = new Image;
+        img.onload = ready;
+        img.src = 'Title_grad.png';
+        textureTitle.setImage(img);
     };
 
     var defaultImage = new Image();
-    defaultImage.onload = loadNext;
+    defaultImage.onload = loadEqua;
     defaultImage.src = "texture_" + textureSize[0] + "_" + textureSize[1] + ".png";
 
 
@@ -416,6 +442,7 @@ var initParticles = function() {
 
     var uniformEqualizerScene = osg.Uniform.createInt1(0,'equalizerScene');
     var uniformIntroTextScene = osg.Uniform.createInt1(0,'introTextScene');
+    var uniformWindIntro = osg.Uniform.createFloat1(1.0, 'windIntro');
 
     var Physics = function(cameras, textures) {
         this.cameras = cameras;
@@ -513,7 +540,7 @@ var initParticles = function() {
             stateset.addUniform(uniformEqualizerLevel1);
             stateset.addUniform(uniformEqualizerLevel2);
             stateset.addUniform(uniformEqualizerLevel3);
-
+            stateset.addUniform(uniformWindIntro);
 
             var idx;
             idx = (index + 1)%3;
@@ -526,7 +553,7 @@ var initParticles = function() {
             stateset.setTextureAttributeAndMode(4, physicsTextures[idx][1]);
             stateset.setTextureAttributeAndMode(5, physicsTextures[idx][2]);
 
-            stateset.setTextureAttributeAndMode(6, textureDistance);
+            //stateset.setTextureAttributeAndMode(6, textureDistance);
 
             camera.statesetGeometry = stateset;
 
@@ -638,7 +665,7 @@ var initParticles = function() {
             "     gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
             "     gl_PointSize = 2.0;",
             "     return ;",
-            "  } else if (material > 0.3 && material < 0.6) {",
+            "  } else if (material > 0.3 && material < 0.8) {",
             "     float b = (1.0-distance);",
             "     color = vec4(0.0, 0.0, 0.0, 1.0 * alpha);",
             "     gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
@@ -728,21 +755,27 @@ var initParticles = function() {
 
                 if (timeObjects.IntroScene.value > 0.5) {
                     uniformIntroTextScene.get()[0] = 1.0; uniformIntroTextScene.dirty();
+                    uniformWindIntro.get()[0] = timeObjects.WindIntro.value; uniformWindIntro.dirty();
 
                     if (timeObjects.Text1.value > 0.0) {
+                        this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureTitle, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+
                         var vec = [0,0,0];
                         vec[timeObjects.Text1.axis] = timeObjects.Text1.axisDirection;
                         osg.Matrix.makeRotate((1.0-timeObjects.Text1.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
                     } else if (timeObjects.Text2.value > 0.0) {
+                        this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureBy, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
                         var vec = [0,0,0];
                         vec[timeObjects.Text2.axis] = timeObjects.Text2.axisDirection;
                         osg.Matrix.makeRotate((1.0-timeObjects.Text2.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
                     }
                     if (timeObjects.Text3.value > 0.0) {
+                        this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureSY, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
                         var vec = [0,0,0];
                         vec[timeObjects.Text3.axis] = timeObjects.Text3.axisDirection;
                         osg.Matrix.makeRotate((1.0-timeObjects.Text3.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
                     } else if (timeObjects.Text4.value > 0.0) {
+                        this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureFR, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
                         var vec = [0,0,0];
                         vec[timeObjects.Text4.axis] = timeObjects.Text4.axisDirection;
                         osg.Matrix.makeRotate((1.0-timeObjects.Text4.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
@@ -757,6 +790,7 @@ var initParticles = function() {
 
                 if (timeObjects.EqualizerScene.value > 0.5) {
                     uniformEqualizerScene.get()[0] = 1; uniformEqualizerScene.dirty();
+                    uniformIntroTextScene.get()[0] = 0.0; uniformIntroTextScene.dirty();
                     
                     this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureEqua, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
 
@@ -764,7 +798,7 @@ var initParticles = function() {
                     
                     uniformEqualizerLevel0.get()[0] = timeObjects.FRQMusicSnare.value; uniformEqualizerLevel0.dirty();
                     uniformEqualizerLevel1.get()[0] = timeObjects.FRQMusicKick.value; uniformEqualizerLevel1.dirty();
-                    uniformEqualizerLevel2.get()[0] = timeObjects.FRQMusicRiff.value; uniformEqualizerLevel2.dirty();
+                    uniformEqualizerLevel2.get()[0] = (timeObjects.FRQMusicRiff.value + timeObjects.FRQMusicVocal.value); uniformEqualizerLevel2.dirty();
                     uniformEqualizerLevel3.get()[0] = (timeObjects.FRQMusicSound1.value + timeObjects.FRQMusicSound2.value + timeObjects.FRQMusicSound3.value); uniformEqualizerLevel3.dirty();
 
                     rotationX.set([0.0]);

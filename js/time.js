@@ -375,7 +375,7 @@ var timeEvents = [
         "Time": "30.466"
     }, 
     {
-        "Event": "FRQMusicVocal", 
+        "Event": "FRQMusicVocal",
         "Note": "Note D1", 
         "Time": "30.478"
     }, 
