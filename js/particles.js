@@ -42,6 +42,9 @@ var initParticles = function() {
             "uniform sampler2D PosY;",
             "uniform sampler2D PosZ;",
             "uniform sampler2D DistanceMap;",
+            "uniform sampler2D model0;",
+            "uniform sampler2D model1;",
+
             "uniform int freeze;",
             "uniform int forceNewLife;",
             "uniform float weightDistanceMap;",
@@ -63,6 +66,7 @@ var initParticles = function() {
 
             "uniform int introTextScene;",
             "uniform int equalizerScene;",
+
             
             "float life;",
             "float distance;",
@@ -248,7 +252,9 @@ var initParticles = function() {
 
             "vec3 verlet(vec3 prevPosition, vec3 currentPosition, float dt) {",
             "   vec3 center = vec3(0.5,0.5,0.5);",
-            "   currentPosition = center+(modelMatrix * vec4(currentPosition-center,1.0)).xyz;",
+            "   if (introTextScene == 1) { // need to have a flag for the text part",
+            "      currentPosition = center+(modelMatrix * vec4(currentPosition-center,1.0)).xyz;",
+            "   }",
             "   float wind = 1.0;",
             "   vec3 velocity = (currentPosition-prevPosition);",
             "   vec3 acceleration = vec3(0.0, 0.0, 0.0*(-9.81 + 9.5));",
@@ -279,7 +285,20 @@ var initParticles = function() {
             "           if (computeEqualizer(currentPosition, equaBottom1, equaSize1, equalizerLevel1) == 0) {",
             "           if (computeEqualizer(currentPosition, equaBottom2, equaSize2, equalizerLevel2) == 0) {",
             "           computeEqualizer(currentPosition, equaBottom3, equaSize3, equalizerLevel3);",
-            "        } } } }",
+            "        } } } } else {",
+            "          life = 0.6;",
+            "          float v = (FragTexCoord0.y - 0.5)*2.0;",
+            "          float u = FragTexCoord0.x; //floor(FragTexCoord0.x*512.0) + 1.0/256.0; //floor(FragTexCoord0.x*2048.0)/2048.0;",
+            "          u = (floor(u*512.0))/512.0;",
+            "          float x = unpack(texture2D( model0, vec2(u+0.0/2048.0,v)));",
+            "          float y = unpack(texture2D( model0, vec2(u+1.0/2048.0,v)));",
+            "          float z = unpack(texture2D( model0, vec2(u+2.0/2048.0,v)));",
+            "          material = 1.0;",
+            "          distance = 1.0;",
+            "          vec3 centerPos = vec3(x,y,z)-center;",
+            "          vec3 finalPos = center + (modelMatrix * (vec4(centerPos* 0.25, 1.0))).xyz;",
+            "          return finalPos;",
+            "        }",
             "     if ( distance > 0.5) {",
             "       material = distance;",
             "     }",
@@ -360,12 +379,18 @@ var initParticles = function() {
         root.setNodeMask(~0x0);
     };
 
+    var setNeareastFilter = function(texture) {
+        texture.setMinFilter('NEAREST');
+        texture.setMagFilter('NEAREST');
+    };
+
     var textureEqua = new osg.Texture();
     var loadEqua = function() {
         var img = new Image;
         img.onload = loadFR;
         img.src = 'equa_grad.png';
         textureEqua.setImage(img);
+        setNeareastFilter(textureEqua);
     };
 
     var textureFR = new osg.Texture();
@@ -374,6 +399,7 @@ var initParticles = function() {
         img.onload = loadSY;
         img.src = 'FRequency_grad.png';
         textureFR.setImage(img);
+        setNeareastFilter(textureFR);
     };
 
     var textureSY = new osg.Texture();
@@ -382,6 +408,7 @@ var initParticles = function() {
         img.onload = loadBy;
         img.src = 'SynRJ_grad.png';
         textureSY.setImage(img);
+        setNeareastFilter(textureSY);
     };
 
     var textureBy = new osg.Texture();
@@ -390,15 +417,27 @@ var initParticles = function() {
         img.onload = loadTitle;
         img.src = 'By_grad.png';
         textureBy.setImage(img);
+        setNeareastFilter(textureBy);
     };
 
     var textureTitle = new osg.Texture();
     var loadTitle = function() {
         var img = new Image;
-        img.onload = ready;
+        img.onload = loadModel0;
         img.src = 'Title_grad.png';
         textureTitle.setImage(img);
+        setNeareastFilter(textureTitle);
     };
+
+    var textureModel0 = new osg.Texture();
+    var loadModel0 = function() {
+        var img = new Image;
+        img.onload = ready;
+        img.src = 'model0.png';
+        textureModel0.setImage(img);
+        setNeareastFilter(textureModel0);
+    };
+
 
     var defaultImage = new Image();
     defaultImage.onload = loadEqua;
@@ -487,6 +526,8 @@ var initParticles = function() {
         var currentPosZ = osg.Uniform.createInt1(5,'PosZ');
 
         var distanceMap = osg.Uniform.createInt1(6,'DistanceMap');
+        var model0 = osg.Uniform.createInt1(7,'model0');
+        var model1 = osg.Uniform.createInt1(8,'model1');
 
         var viewport = new osg.Viewport(0,0,textureSize[0],textureSize[1]);
 
@@ -541,6 +582,9 @@ var initParticles = function() {
             stateset.addUniform(uniformEqualizerLevel2);
             stateset.addUniform(uniformEqualizerLevel3);
             stateset.addUniform(uniformWindIntro);
+
+            stateset.addUniform(model0);
+            stateset.addUniform(model1);
 
             var idx;
             idx = (index + 1)%3;
@@ -739,7 +783,8 @@ var initParticles = function() {
             } else if (this.nbUpdate == 3) {
                 var audioSound = document.getElementById('zik');
                 audioSound.play();
-                //audioSound.currentTime = 13.0;
+                audioSound.currentTime = 14.757;
+
             } else {
 
                 weightVelocityField.set([0.0* (0.5 + 0.5*Math.cos(t*0.2))]);
@@ -756,29 +801,28 @@ var initParticles = function() {
                 if (timeObjects.IntroScene.value > 0.5) {
                     uniformIntroTextScene.get()[0] = 1.0; uniformIntroTextScene.dirty();
                     uniformWindIntro.get()[0] = timeObjects.WindIntro.value; uniformWindIntro.dirty();
-
-                    if (timeObjects.Text1.value > 0.0) {
-                        this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureTitle, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
-
+                    if (timeObjects.Text4.value > 0.0) {
+                        this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureFR, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
                         var vec = [0,0,0];
-                        vec[timeObjects.Text1.axis] = timeObjects.Text1.axisDirection;
-                        osg.Matrix.makeRotate((1.0-timeObjects.Text1.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+                        vec[timeObjects.Text4.axis] = timeObjects.Text4.axisDirection;
+                        osg.Matrix.makeRotate((1.0-timeObjects.Text4.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+                        //osg.log("text4 " + t);
+                    } else if (timeObjects.Text3.value > 0.0) {
+                        this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureSY, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+                        var vec = [0,0,0];
+                        vec[timeObjects.Text3.axis] = timeObjects.Text3.axisDirection;
+                        osg.Matrix.makeRotate((1.0-timeObjects.Text3.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
                     } else if (timeObjects.Text2.value > 0.0) {
                         this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureBy, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
                         var vec = [0,0,0];
                         vec[timeObjects.Text2.axis] = timeObjects.Text2.axisDirection;
                         osg.Matrix.makeRotate((1.0-timeObjects.Text2.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
-                    }
-                    if (timeObjects.Text3.value > 0.0) {
-                        this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureSY, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+                    } else if (timeObjects.Text1.value > 0.0) {
+                        this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureTitle, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+
                         var vec = [0,0,0];
-                        vec[timeObjects.Text3.axis] = timeObjects.Text3.axisDirection;
-                        osg.Matrix.makeRotate((1.0-timeObjects.Text3.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
-                    } else if (timeObjects.Text4.value > 0.0) {
-                        this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureFR, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
-                        var vec = [0,0,0];
-                        vec[timeObjects.Text4.axis] = timeObjects.Text4.axisDirection;
-                        osg.Matrix.makeRotate((1.0-timeObjects.Text4.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+                        vec[timeObjects.Text1.axis] = timeObjects.Text1.axisDirection;
+                        osg.Matrix.makeRotate((1.0-timeObjects.Text1.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
                     }
 
                     weightDistanceMap.set([0.8]);
@@ -789,10 +833,12 @@ var initParticles = function() {
                 }
 
                 if (timeObjects.EqualizerScene.value > 0.5) {
+                    //osg.log("EqualizerScene " + t);
                     uniformEqualizerScene.get()[0] = 1; uniformEqualizerScene.dirty();
                     uniformIntroTextScene.get()[0] = 0.0; uniformIntroTextScene.dirty();
                     
                     this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureEqua, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+                    this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(7, textureModel0, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
 
                     uniformEqualizer.get()[0] = 1.0; uniformEqualizer.dirty();
                     
@@ -807,6 +853,11 @@ var initParticles = function() {
                     //forceNewLife.set([1]);
                     weightDistanceMap.set([1.0]);
                     freeze.set([1.0]);
+
+                    var vec = [0,0,0];
+                    vec[timeObjects.ModelRotate.axis] = timeObjects.ModelRotate.axisDirection;
+                    osg.Matrix.makeRotate(t, vec[0],vec[1],vec[2], modelMatrix.get());
+                    modelMatrix.dirty();
                 }
             }
 
