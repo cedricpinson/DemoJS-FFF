@@ -335,7 +335,7 @@ var timeSetup = function(eventData) {
         0.1,
         Timeline.Easing.Cubic.EaseIn
     ).to(
-        30.0,
+        0.0,
         { value:0.0},
         0.00001
     );

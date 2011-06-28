@@ -79,17 +79,45 @@ var initParticles = function() {
             "vec3 equaBottom[equaNumber];",
             "vec3 equaSize[equaNumber];",
             "float equaLevel[equaNumber];",
-            "const vec3 equaBottom0 = vec3(0.2, 0.5, 0.2);",
+            "const vec3 equaBottom0 = vec3(0.2, 0.1, 0.2);",
             "const vec3 equaSize0 = vec3(0.1, 0.5, 0.5);",
 
-            "const vec3 equaBottom1 = vec3(0.4, 0.5, 0.2);",
+            "const vec3 equaBottom1 = vec3(0.4, 0.1, 0.2);",
             "const vec3 equaSize1 = vec3(0.1, 0.5, 0.5);",
 
-            "const vec3 equaBottom2 = vec3(0.6, 0.5, 0.2);",
+            "const vec3 equaBottom2 = vec3(0.6, 0.1, 0.2);",
             "const vec3 equaSize2 = vec3(0.1, 0.5, 0.5);",
 
-            "const vec3 equaBottom3 = vec3(0.8, 0.5, 0.2);",
+            "const vec3 equaBottom3 = vec3(0.8, 0.1, 0.2);",
             "const vec3 equaSize3 = vec3(0.1, 0.5, 0.5);",
+
+            "float unpack(vec4 vec) {",
+            "  return vec[0] * 255.0 / 256.0 + vec[1] * 255.0 / (256.0 * 256.0) + vec[2] * 255.0 / (256.0 * 256.0 * 256.0);",
+            "}",
+            "vec4 pack(float value) {",
+            "  return vec4(floor(value * 256.0)/255.0, floor(fract(value * 256.0) * 256.0)/255.0 , floor(fract(value * 65536.0) * 256.0)/255.0, 0.0);",
+            "}",
+
+            "vec2 getModelBaseUV() {",
+            "  float v = (FragTexCoord0.y - 0.5)*2.0;",
+            "  float u = FragTexCoord0.x;",
+            "  u = (floor(u*512.0))/512.0;",
+            "  return vec2(u,v);",
+            "}",
+
+            "vec3 getModel0(vec2 uvx, vec2 uvy, vec2 uvz) {",
+            "  float x = unpack(texture2D( model0, uvx));",
+            "  float y = unpack(texture2D( model0, uvy));",
+            "  float z = unpack(texture2D( model0, uvz));",
+            "  return vec3(x,y,z);",
+            "}",
+
+            "vec3 getModel1(vec2 uvx, vec2 uvy, vec2 uvz) {",
+            "  float x = unpack(texture2D( model1, uvx));",
+            "  float y = unpack(texture2D( model1, uvy));",
+            "  float z = unpack(texture2D( model1, uvz));",
+            "  return vec3(x,y,z);",
+            "}",
 
             "void initEquaArrays() {",
             " equaBottom[0] = equaBottom0;",
@@ -119,12 +147,6 @@ var initParticles = function() {
             "   return 1;",
             "}",
 
-            "float unpack(vec4 vec) {",
-            "  return vec[0] * 255.0 / 256.0 + vec[1] * 255.0 / (256.0 * 256.0) + vec[2] * 255.0 / (256.0 * 256.0 * 256.0);",
-            "}",
-            "vec4 pack(float value) {",
-            "  return vec4(floor(value * 256.0)/255.0, floor(fract(value * 256.0) * 256.0)/255.0 , floor(fract(value * 65536.0) * 256.0)/255.0, 0.0);",
-            "}",
             "vec3 getSpawnModel(float offset) {",
             "   vec3 center = vec3(0.5, 0.5, 0.5);",
             "   float size = 0.2;",
@@ -144,7 +166,7 @@ var initParticles = function() {
             "   return pos;",
             "}",
             "vec3 getSpawnPosition2(float offset) {",
-            "   vec3 center = vec3(0.5, 0.50, 0.5);",
+            "   vec3 center = vec3(0.5, 0.5, 0.5);",
             "   vec3 size = vec3(0.7, 0.0,  0.4);",
             "   vec3 corner = center - size*0.5;",
             "   vec3 pos = vec3(size.x * FragTexCoord0.x, 0.0*(-offset + 0.1 + 0.1*cos(4.0*FragTexCoord0.x)), size.z*FragTexCoord0.y + 0.05*cos(4.0*FragTexCoord0.x))+corner;",
@@ -154,7 +176,8 @@ var initParticles = function() {
             "}",
 
             "vec3 getSpawnPosition(float offset) {",
-            "   if (equalizerScene == 1 && FragTexCoord0.y < equaRange) {",
+            "   if (equalizerScene == 1) {",
+            "     if (FragTexCoord0.y < equaRange) {",
             "      float step = equaRange/float(equaNumber);",
             "      for (int i = 0; i < equaNumberDisplay; i++) {",
             "         if (FragTexCoord0.y < float(i+1)*step) {",
@@ -165,9 +188,17 @@ var initParticles = function() {
 
             "            return getSpawnPositionBoundingBox(center, size, -offset*.03, (FragTexCoord0.y-(float(i)*step))/step + texel.g*texel[i]*step*float(i));",
             "         }",
-            "      }",
+            "      }} else {",
+            "        material = 0.0;",
+            "        float scale = 0.3;",
+            "         vec3 center = vec3(0.5, 0.5, 0.5);",
+            "          vec2 uvx = getModelBaseUV();",
+            "          vec2 uvy = uvx + vec2(1.0/2048.0, 0.0);",
+            "          vec2 uvz = uvx + vec2(2.0/2048.0, 0.0);",
+            "          return center+ (getModel1(uvx, uvy, uvz)-center)*scale;",
+            "          return vec3(0.5, 0.5, 0.5);",
+            "     }",
             "   }",
-
             "   if (introTextScene == 1) {",
             "      return getSpawnPosition2(0.0*offset);",
             "   }",
@@ -250,6 +281,8 @@ var initParticles = function() {
             "        return 1;",
             "}",
 
+            
+
             "vec3 verlet(vec3 prevPosition, vec3 currentPosition, float dt) {",
             "   vec3 center = vec3(0.5,0.5,0.5);",
             "   if (introTextScene == 1) { // need to have a flag for the text part",
@@ -259,16 +292,15 @@ var initParticles = function() {
             "   vec3 velocity = (currentPosition-prevPosition);",
             "   vec3 acceleration = vec3(0.0, 0.0, 0.0*(-9.81 + 9.5));",
             "   targetVec = vec3(0.0,0.0,0.0);",
-            "   targetVec = getVelocityField(currentPosition)*weightVelocityField;",
-
+            "   //targetVec = getVelocityField(currentPosition)*weightVelocityField;",
             "   if (rotationZ >= 0.01) {",
             "      targetVec += getRotationalVelocityField(currentPosition, vec3(0.0, 0.0, 1.0), rotationZ);",
             "   }",
-            "   if (rotationX >= 0.01) {",
-            "      targetVec += getRotationalVelocityField(currentPosition, vec3(1.0, 0.0, 0.0), rotationX);",
-            "   }",
 
             "   if (introTextScene == 1) { // need to have a flag for the text part",
+            "      if (rotationX >= 0.01) {",
+            "         targetVec += getRotationalVelocityField(currentPosition, vec3(1.0, 0.0, 0.0), rotationX);",
+            "      }",
             "      targetVec += getDirection(currentPosition)*weightDistanceMap*0.4;",
             "      wind = windIntro;",
             "      if (weightDistanceMap > 0.001) {",
@@ -286,26 +318,31 @@ var initParticles = function() {
             "           if (computeEqualizer(currentPosition, equaBottom2, equaSize2, equalizerLevel2) == 0) {",
             "           computeEqualizer(currentPosition, equaBottom3, equaSize3, equalizerLevel3);",
             "        } } } } else {",
-            "          life = 0.6;",
-            "          float v = (FragTexCoord0.y - 0.5)*2.0;",
-            "          float u = FragTexCoord0.x; //floor(FragTexCoord0.x*512.0) + 1.0/256.0; //floor(FragTexCoord0.x*2048.0)/2048.0;",
-            "          u = (floor(u*512.0))/512.0;",
-            "          float x = unpack(texture2D( model0, vec2(u+0.0/2048.0,v)));",
-            "          float y = unpack(texture2D( model0, vec2(u+1.0/2048.0,v)));",
-            "          float z = unpack(texture2D( model0, vec2(u+2.0/2048.0,v)));",
-
-            "          float x2 = unpack(texture2D( model1, vec2(u+0.0/2048.0,v)));",
-            "          float y2 = unpack(texture2D( model1, vec2(u+1.0/2048.0,v)));",
-            "          float z2 = unpack(texture2D( model1, vec2(u+2.0/2048.0,v)));",
+            "          //life = 0.6;",
+            "          vec2 uvx = getModelBaseUV();",
+            "          vec2 uvy = uvx + vec2(1.0/2048.0, 0.0);",
+            "          vec2 uvz = uvx + vec2(2.0/2048.0, 0.0);",
+            "          //life= 0.6;",
             "          material = 1.0;",
             "          distance = 1.0;",
-            "          vec3 centerPos = vec3(x,y,z)-center;",
-            "          vec3 centerPos2 = vec3(x2,y2,z2)-center;",
-            "          vec3 finalPos = center + (modelMatrix * (vec4(centerPos* 0.25, 1.0))).xyz;",
-            "          vec3 finalPos2 = center + (modelMatrix * (vec4(centerPos2* 0.25, 1.0))).xyz;",
-            "          float ratio = 0.5 + 0.5*cos(time);",
+            "          wind = 1.0;",
+            "          vec3 centerPos = getModel0(uvx, uvy, uvz)-center;",
+            "          vec3 centerPos2 = getModel1(uvx, uvy, uvz)-center;",
+            "          float scale = 0.3;",
+            "          vec3 finalPos = center + (modelMatrix * (vec4(centerPos* scale, 1.0))).xyz;",
+            "          vec3 finalPos2 = center + (modelMatrix * (vec4(centerPos2* scale, 1.0))).xyz;",
+            "          float ratio = 0.5 + 0.5*cos(time*0.1);",
             "          vec3 rrr = finalPos*ratio + (1.0-ratio)*finalPos2;",
-            "          return rrr;",
+            "          rrr = finalPos2;",
+            "          vec3 vec = rrr-currentPosition;",
+            "          distance = (0.5-length(vec))/0.5;",
+            "          distance = max(distance, 1.0);",
+            "          targetVec += vec*10.0;",
+            "          targetVec += 3.0*getVelocityField(currentPosition)*weightVelocityField;",
+            "      if (rotationX >= 0.01) {",
+            "         targetVec += getRotationalVelocityField(currentPosition, vec3(1.0, 0.0, 0.0), rotationX);",
+            "      }",
+
             "        }",
             "     if ( distance > 0.5) {",
             "       material = distance;",
@@ -334,10 +371,13 @@ var initParticles = function() {
             "   float dt = 1.0/60.0;",
             "   vec3 previousPos = getPreviousPosition();",
             "   vec3 currentPos = getCurrentPosition();",
-            "   if (equalizerScene == 1 && FragTexCoord0.y < equaRange) {",
-            "      life = max(life-dt, 0.0);",
+            "   if (equalizerScene == 1) {",
+            "      if (FragTexCoord0.y < equaRange) {",
+            "         life = max(life-dt, 0.0);",
+            "      } else {",
+            "         life = max(life-dt/8.0, 0.0);",
+            "      }",
             "   }",
-
             "   if (material > 0.3 && equalizerScene == 0) {",
             "      life = max(life-dt/3.0, 0.0);",
             "   } else {",
@@ -865,7 +905,7 @@ var initParticles = function() {
                     uniformEqualizerLevel2.get()[0] = (timeObjects.FRQMusicRiff.value + timeObjects.FRQMusicVocal.value); uniformEqualizerLevel2.dirty();
                     uniformEqualizerLevel3.get()[0] = (timeObjects.FRQMusicSound1.value + timeObjects.FRQMusicSound2.value + timeObjects.FRQMusicSound3.value); uniformEqualizerLevel3.dirty();
 
-                    rotationX.set([0.0]);
+                    rotationX.set([1.0]);
                     rotationZ.set([0.0]);
                     //weightVelocityField.set([0.4* (0.5 + 0.5*Math.cos(t))]);
                     //forceNewLife.set([1]);
@@ -873,9 +913,12 @@ var initParticles = function() {
                     freeze.set([1.0]);
 
                     var vec = [0,0,0];
-                    vec[timeObjects.ModelRotate.axis] = timeObjects.ModelRotate.axisDirection;
-                    osg.Matrix.makeRotate(t, vec[0],vec[1],vec[2], modelMatrix.get());
-                    modelMatrix.dirty();
+                    weightVelocityField.set([0.3* (0.5 + 0.5*Math.cos(t*0.2))]);
+                    if (timeObjects.ModelRotate.value > 0.1) {
+                        vec[timeObjects.ModelRotate.axis] = timeObjects.ModelRotate.axisDirection;
+                        osg.Matrix.makeRotate(t, vec[0],vec[1],vec[2], modelMatrix.get());
+                        modelMatrix.dirty();
+                    }
                 }
             }
 
