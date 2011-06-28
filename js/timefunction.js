@@ -19,6 +19,7 @@ var timeSetup = function(eventData) {
         "Time": "00.918"
     });
     
+
     duration = { "FRQMusicSnare": 
                  { 
                      "start": 0.1,
@@ -31,7 +32,15 @@ var timeSetup = function(eventData) {
                      "stay": 0.0001,
                      "end": 0.1,
                  },
+                 "FRQMusicVocal": 
+                 { 
+                     "start": 0.1,
+                     "stay": 0.0001,
+                     "end": 0.1,
+                     "func": changeModel
+                 },
                };
+
 
 
     for (var i = 0, l = eventData.length; i < l; i++) {
@@ -54,13 +63,16 @@ var timeSetup = function(eventData) {
         var start = 0.0001;
         var stay = 0.5;
         var end = 0.1;
+        var func = undefined;
         if (duration[eventName] !== undefined) {
             start = duration[eventName].start;
             stay = duration[eventName].stay;
             end = duration[eventName].end;
+            func = duration[eventName].func;
         }
         anim(eventName,dictObject[eventName]).to( time-start,
                                                   { value:1.0 },
+                                                  func,
                                                   start,
                                                   Timeline.Easing.Linear.EaseNone
                                                 ).to(
@@ -70,6 +82,7 @@ var timeSetup = function(eventData) {
                                                     Timeline.Easing.Linear.EaseNone
                                                 );
     }
+
 
     var axisIndex = 0;
     var selectAxis = function() {
@@ -81,6 +94,7 @@ var timeSetup = function(eventData) {
             this.axisDirection = -1;
         }
     };
+
 
 
     dictObject.FreezeText = { value: 0.0};
@@ -321,6 +335,18 @@ var timeSetup = function(eventData) {
         Timeline.Easing.Linear.None
     ).to(
         59.0,
+        { value:0.0},
+        0.00001
+    );
+
+    dictObject.EqualizerSceneShowModel = { value: 0.0};
+    anim("EqualizerSceneShowModel",dictObject.EqualizerSceneShowModel).to(
+        16.756,
+        { value:1.0 },
+        5.0,
+        Timeline.Easing.Linear.None
+    ).to(
+        100.0,
         { value:0.0},
         0.00001
     );

@@ -1,5 +1,7 @@
 /** -*- compile-command: "jslint-cli particles.js" -*- */
 
+var changeModel;
+
 var initParticles = function() {
 
     var root = new osg.Node();
@@ -58,6 +60,9 @@ var initParticles = function() {
             "uniform float seed;",
             "uniform float windIntro;",
 
+            "uniform float modelRatio;",
+            "uniform float showModel;",
+
             "uniform float equalizer;",
             "uniform float equalizerLevel0;",
             "uniform float equalizerLevel1;",
@@ -67,6 +72,7 @@ var initParticles = function() {
             "uniform int introTextScene;",
             "uniform int equalizerScene;",
 
+            "const vec3 worldCenter = vec3(0.5, 0.5, 0.5);",
             
             "float life;",
             "float distance;",
@@ -107,16 +113,28 @@ var initParticles = function() {
 
             "vec3 getModel0(vec2 uvx, vec2 uvy, vec2 uvz) {",
             "  float x = unpack(texture2D( model0, uvx));",
-            "  float y = unpack(texture2D( model0, uvy));",
-            "  float z = unpack(texture2D( model0, uvz));",
+            "  float y = unpack(texture2D( model0, uvz));",
+            "  float z = unpack(texture2D( model0, uvy));",
             "  return vec3(x,y,z);",
             "}",
 
             "vec3 getModel1(vec2 uvx, vec2 uvy, vec2 uvz) {",
             "  float x = unpack(texture2D( model1, uvx));",
-            "  float y = unpack(texture2D( model1, uvy));",
-            "  float z = unpack(texture2D( model1, uvz));",
+            "  float y = unpack(texture2D( model1, uvz));",
+            "  float z = unpack(texture2D( model1, uvy));",
             "  return vec3(x,y,z);",
+            "}",
+            "vec3 getModel(float ratio) {",
+            "  vec2 uvx = getModelBaseUV();",
+            "  vec2 uvy = uvx + vec2(1.0/2048.0, 0.0);",
+            "  vec2 uvz = uvx + vec2(2.0/2048.0, 0.0);",
+            "  vec3 centerPos = getModel0(uvx, uvy, uvz)-worldCenter;",
+            "  vec3 centerPos2 = getModel1(uvx, uvy, uvz)-worldCenter;",
+            "  float scale = 0.3;",
+            "  vec3 finalPos = worldCenter + (modelMatrix * (vec4(centerPos* scale, 1.0))).xyz;",
+            "  vec3 finalPos2 = worldCenter + (modelMatrix * (vec4(centerPos2* scale, 1.0))).xyz;",
+            "  vec3 rrr = finalPos*(1.0-modelRatio) + modelRatio*finalPos2;",
+            "  return rrr;",
             "}",
 
             "void initEquaArrays() {",
@@ -148,12 +166,10 @@ var initParticles = function() {
             "}",
 
             "vec3 getSpawnModel(float offset) {",
-            "   vec3 center = vec3(0.5, 0.5, 0.5);",
             "   float size = 0.2;",
             "   float a = 2.0 * 3.14159 * FragTexCoord0.x;",
             "   float b = 2.0 * 3.14159 * FragTexCoord0.y;",
-            "   vec3 pos = center + vec3(cos(a), cos(a)+sin(b), cos(b)) * size;",
-            "   //pos = center + (modelMatrix*(vec4(pos-center,1.0))).xyz;",
+            "   vec3 pos = worldCenter + vec3(cos(a), cos(a)+sin(b), cos(b)) * size;",
             "   material = 0.0;",
             "   return pos;",
             "}",
@@ -166,11 +182,9 @@ var initParticles = function() {
             "   return pos;",
             "}",
             "vec3 getSpawnPosition2(float offset) {",
-            "   vec3 center = vec3(0.5, 0.5, 0.5);",
             "   vec3 size = vec3(0.7, 0.0,  0.4);",
-            "   vec3 corner = center - size*0.5;",
+            "   vec3 corner = worldCenter - size*0.5;",
             "   vec3 pos = vec3(size.x * FragTexCoord0.x, 0.0*(-offset + 0.1 + 0.1*cos(4.0*FragTexCoord0.x)), size.z*FragTexCoord0.y + 0.05*cos(4.0*FragTexCoord0.x))+corner;",
-            "   //pos = center + (modelMatrix*(vec4(pos-center, 1.0))).xyz;",
             "   material = 0.0;",
             "   return pos;",
             "}",
@@ -190,13 +204,7 @@ var initParticles = function() {
             "         }",
             "      }} else {",
             "        material = 0.0;",
-            "        float scale = 0.3;",
-            "         vec3 center = vec3(0.5, 0.5, 0.5);",
-            "          vec2 uvx = getModelBaseUV();",
-            "          vec2 uvy = uvx + vec2(1.0/2048.0, 0.0);",
-            "          vec2 uvz = uvx + vec2(2.0/2048.0, 0.0);",
-            "          return center+ (getModel1(uvx, uvy, uvz)-center)*scale;",
-            "          return vec3(0.5, 0.5, 0.5);",
+            "        return getModel(modelRatio);",
             "     }",
             "   }",
             "   if (introTextScene == 1) {",
@@ -206,9 +214,8 @@ var initParticles = function() {
             "   return vec3(0.0, -1000000.0, 0.0);",
 
             "   //return getSpawnModel(offset);",
-            "   vec3 center = vec3(0.5, 0.50, 0.5);",
             "   vec3 size = vec3(0.7, 0.0,  0.4);",
-            "   vec3 corner = center - size*0.5;",
+            "   vec3 corner = worldCenter - size*0.5;",
             "   vec3 pos = vec3(size.x* FragTexCoord0.x, -offset + 0.1 + 0.1*cos(4.0*FragTexCoord0.x), size.z*FragTexCoord0.y + 0.05*cos(4.0*FragTexCoord0.x))+corner;",
             "   material = 0.0;",
             "   return pos;",
@@ -284,9 +291,8 @@ var initParticles = function() {
             
 
             "vec3 verlet(vec3 prevPosition, vec3 currentPosition, float dt) {",
-            "   vec3 center = vec3(0.5,0.5,0.5);",
             "   if (introTextScene == 1) { // need to have a flag for the text part",
-            "      currentPosition = center+(modelMatrix * vec4(currentPosition-center,1.0)).xyz;",
+            "      currentPosition = worldCenter+(modelMatrix * vec4(currentPosition-worldCenter,1.0)).xyz;",
             "   }",
             "   float wind = 1.0;",
             "   vec3 velocity = (currentPosition-prevPosition);",
@@ -313,41 +319,31 @@ var initParticles = function() {
             "      }",
             "   } else if (equalizerScene == 1) {",
             "       if (FragTexCoord0.y < equaRange) {", 
-            "        if (computeEqualizer(currentPosition, equaBottom0, equaSize0, equalizerLevel0) == 0) { ",
-            "           if (computeEqualizer(currentPosition, equaBottom1, equaSize1, equalizerLevel1) == 0) {",
-            "           if (computeEqualizer(currentPosition, equaBottom2, equaSize2, equalizerLevel2) == 0) {",
-            "           computeEqualizer(currentPosition, equaBottom3, equaSize3, equalizerLevel3);",
-            "        } } } } else {",
+            "          if (computeEqualizer(currentPosition, equaBottom0, equaSize0, equalizerLevel0) == 0) { ",
+            "             if (computeEqualizer(currentPosition, equaBottom1, equaSize1, equalizerLevel1) == 0) {",
+            "                if (computeEqualizer(currentPosition, equaBottom2, equaSize2, equalizerLevel2) == 0) {",
+            "                   computeEqualizer(currentPosition, equaBottom3, equaSize3, equalizerLevel3);",
+            "        } } } ",
+            "         if ( distance > 0.5) {",
+            "           material = distance;",
+            "         }",
+            "       } else {",
             "          //life = 0.6;",
-            "          vec2 uvx = getModelBaseUV();",
-            "          vec2 uvy = uvx + vec2(1.0/2048.0, 0.0);",
-            "          vec2 uvz = uvx + vec2(2.0/2048.0, 0.0);",
             "          //life= 0.6;",
-            "          material = 1.0;",
+            "          material = showModel;",
             "          distance = 1.0;",
             "          wind = 1.0;",
-            "          vec3 centerPos = getModel0(uvx, uvy, uvz)-center;",
-            "          vec3 centerPos2 = getModel1(uvx, uvy, uvz)-center;",
-            "          float scale = 0.3;",
-            "          vec3 finalPos = center + (modelMatrix * (vec4(centerPos* scale, 1.0))).xyz;",
-            "          vec3 finalPos2 = center + (modelMatrix * (vec4(centerPos2* scale, 1.0))).xyz;",
-            "          float ratio = 0.5 + 0.5*cos(time*0.1);",
-            "          vec3 rrr = finalPos*ratio + (1.0-ratio)*finalPos2;",
-            "          rrr = finalPos2;",
+            "          vec3 rrr = getModel(modelRatio);",
             "          vec3 vec = rrr-currentPosition;",
             "          distance = (0.5-length(vec))/0.5;",
             "          distance = max(distance, 1.0);",
             "          targetVec += vec*10.0;",
             "          targetVec += 3.0*getVelocityField(currentPosition)*weightVelocityField;",
-            "      if (rotationX >= 0.01) {",
-            "         targetVec += getRotationalVelocityField(currentPosition, vec3(1.0, 0.0, 0.0), rotationX);",
-            "      }",
-
-            "        }",
-            "     if ( distance > 0.5) {",
-            "       material = distance;",
-            "     }",
-            "   }",
+            "          if (rotationX >= 0.01) {",
+            "             targetVec += getRotationalVelocityField(currentPosition, vec3(1.0, 0.0, 0.0), rotationX);",
+            "          }",
+            "       }",
+            "    }",
             "",
             "   acceleration += targetVec ;", //* 0.5;",
             "   ",
@@ -432,10 +428,25 @@ var initParticles = function() {
         texture.setMagFilter('NEAREST');
     };
 
+    var loadingComplete = function() {
+        loadingComplete.nbLoad--;
+        if (loadingComplete.nbLoad < 0) {
+            osg.log("loadingComplete called more than needed");
+        }
+        if (loadingComplete.nbLoad === 0) {
+            ready();
+        }
+    };
+    loadingComplete.nbLoad = 0;
+    loadingComplete.addRessource = function() {
+        loadingComplete.nbLoad++;
+    };
+
     var textureEqua = new osg.Texture();
     var loadEqua = function() {
         var img = new Image;
-        img.onload = loadFR;
+        loadingComplete.addRessource();
+        img.onload = function() { loadingComplete() };
         img.src = 'equa_grad.png';
         textureEqua.setImage(img);
         setNeareastFilter(textureEqua);
@@ -444,7 +455,8 @@ var initParticles = function() {
     var textureFR = new osg.Texture();
     var loadFR = function() {
         var img = new Image;
-        img.onload = loadSY;
+        loadingComplete.addRessource();
+        img.onload = function() { loadingComplete() };
         img.src = 'FRequency_grad.png';
         textureFR.setImage(img);
         setNeareastFilter(textureFR);
@@ -453,7 +465,8 @@ var initParticles = function() {
     var textureSY = new osg.Texture();
     var loadSY = function() {
         var img = new Image;
-        img.onload = loadBy;
+        loadingComplete.addRessource();
+        img.onload = function() { loadingComplete() };
         img.src = 'SynRJ_grad.png';
         textureSY.setImage(img);
         setNeareastFilter(textureSY);
@@ -462,7 +475,8 @@ var initParticles = function() {
     var textureBy = new osg.Texture();
     var loadBy = function() {
         var img = new Image;
-        img.onload = loadTitle;
+        loadingComplete.addRessource();
+        img.onload = function() { loadingComplete() };
         img.src = 'By_grad.png';
         textureBy.setImage(img);
         setNeareastFilter(textureBy);
@@ -471,7 +485,8 @@ var initParticles = function() {
     var textureTitle = new osg.Texture();
     var loadTitle = function() {
         var img = new Image;
-        img.onload = loadModel0;
+        loadingComplete.addRessource();
+        img.onload = function() { loadingComplete() };
         img.src = 'Title_grad.png';
         textureTitle.setImage(img);
         setNeareastFilter(textureTitle);
@@ -480,7 +495,8 @@ var initParticles = function() {
     var textureModel0 = new osg.Texture();
     var loadModel0 = function() {
         var img = new Image;
-        img.onload = loadModel1;
+        loadingComplete.addRessource();
+        img.onload = function() { loadingComplete() };
         img.src = 'model0.png';
         textureModel0.setImage(img);
         setNeareastFilter(textureModel0);
@@ -489,16 +505,75 @@ var initParticles = function() {
     var textureModel1 = new osg.Texture();
     var loadModel1 = function() {
         var img = new Image;
-        img.onload = ready;
+        loadingComplete.addRessource();
+        img.onload = function() { loadingComplete() };
         img.src = 'model1.png';
         textureModel1.setImage(img);
         setNeareastFilter(textureModel1);
     };
 
+    var textureModel2 = new osg.Texture();
+    var loadModel2 = function() {
+        var img = new Image;
+        loadingComplete.addRessource();
+        img.onload = function() { loadingComplete() };
+        img.src = 'model2.png';
+        textureModel2.setImage(img);
+        setNeareastFilter(textureModel2);
+    };
 
-    var defaultImage = new Image();
-    defaultImage.onload = loadEqua;
-    defaultImage.src = "texture_" + textureSize[0] + "_" + textureSize[1] + ".png";
+    var textureModel3 = new osg.Texture();
+    var loadModel3 = function() {
+        var img = new Image;
+        loadingComplete.addRessource();
+        img.onload = function() { loadingComplete() };
+        img.src = 'model3.png';
+        textureModel3.setImage(img);
+        setNeareastFilter(textureModel3);
+    };
+
+    var textureModel4 = new osg.Texture();
+    var loadModel4 = function() {
+        var img = new Image;
+        loadingComplete.addRessource();
+        img.onload = function() { loadingComplete() };
+        img.src = 'model4.png';
+        textureModel4.setImage(img);
+        setNeareastFilter(textureModel4);
+    };
+
+    var textureModel5 = new osg.Texture();
+    var loadModel5 = function() {
+        var img = new Image;
+        loadingComplete.addRessource();
+        img.onload = function() { loadingComplete() };
+        img.src = 'model5.png';
+        textureModel5.setImage(img);
+        setNeareastFilter(textureModel5);
+    };
+
+
+    var defaultImage;
+    var loadDefaultImage = function() {
+        defaultImage = new Image();
+        loadingComplete.addRessource();
+        defaultImage.onload = function() { loadingComplete() };
+        defaultImage.src = "texture_" + textureSize[0] + "_" + textureSize[1] + ".png";
+    };
+
+    // loading
+    loadDefaultImage();
+    loadEqua();
+    loadFR();
+    loadSY();
+    loadBy();
+    loadTitle();
+    loadModel0();
+    loadModel1();
+    loadModel2();
+    loadModel3();
+    loadModel4();
+    loadModel5();
 
 
     var textureIndex = 0;
@@ -539,6 +614,9 @@ var initParticles = function() {
     var uniformEqualizerScene = osg.Uniform.createInt1(0,'equalizerScene');
     var uniformIntroTextScene = osg.Uniform.createInt1(0,'introTextScene');
     var uniformWindIntro = osg.Uniform.createFloat1(1.0, 'windIntro');
+
+    var uniformModelRatio = osg.Uniform.createFloat1(0.0, 'modelRatio');
+    var uniformShowModel = osg.Uniform.createFloat1(0.0, 'showModel');
 
     var Physics = function(cameras, textures) {
         this.cameras = cameras;
@@ -639,6 +717,8 @@ var initParticles = function() {
             stateset.addUniform(uniformEqualizerLevel2);
             stateset.addUniform(uniformEqualizerLevel3);
             stateset.addUniform(uniformWindIntro);
+            stateset.addUniform(uniformModelRatio);
+            stateset.addUniform(uniformShowModel);
 
             stateset.addUniform(model0);
             stateset.addUniform(model1);
@@ -756,13 +836,10 @@ var initParticles = function() {
             "  color = vec4(uv.x, uv.y, 0.0, 1.0);",
             "  float alpha = getSmoothDead2(life);",
             "  float distFromEdge = 1.0;",
-            "  if ( false && (distance-0.5) < 0.0 ) { // disable to always see particles", 
-            "     distFromEdge = 1.0 - 2.0 * abs( distance-0.5);",
-            "  }",
             "  color = vec4(x * alpha , y * alpha, z * alpha, alpha * distFromEdge);",
             "  if (equalizer >0.0 && distance > 0.5) {",
             "     float b = (1.0-distance);",
-            "     color = vec4(0.0, 0.0, 0.0, 1.0 * alpha);",
+            "     color = vec4(0.0, 0.0, 0.0, 1.0 * alpha * material);",
             "     gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
             "     gl_PointSize = 2.0;",
             "     return ;",
@@ -815,6 +892,29 @@ var initParticles = function() {
     var render = createRender();
     render.setDisplayTexture(physics.getDisplayTexture());
 
+    var models = [ textureModel0, textureModel1, textureModel2, textureModel3, textureModel4, textureModel5 ];
+    changeModel = function() {
+        var st = physics.root.getOrCreateStateSet();
+        if (this.model === undefined) {
+            st.setTextureAttributeAndMode(7, models[0], osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+            this.model = 0;
+            osg.log("first model");
+        } else {
+            var previousIndex = (this.model)%2;
+            var previousModel = this.model;
+            this.model++;
+            var nextIndex = (this.model)%2;
+            var nextModel = this.model;
+            uniformModelRatio.get()[0] = nextIndex; uniformModelRatio.dirty();
+
+            st.setTextureAttributeAndMode(7+previousIndex, models[previousModel], osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+            st.setTextureAttributeAndMode(7+nextIndex, models[nextModel], osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+            osg.log("change model from " + previousIndex + " to " + nextIndex);
+        }
+    };
+
+
+
 
     var timeObjects = timeSetup(timeEvents);
 
@@ -840,7 +940,7 @@ var initParticles = function() {
             } else if (this.nbUpdate == 3) {
                 var audioSound = document.getElementById('zik');
                 audioSound.play();
-                audioSound.currentTime = 14.757;
+                audioSound.currentTime = 13.0;
 
             } else {
 
@@ -895,15 +995,16 @@ var initParticles = function() {
                     uniformIntroTextScene.get()[0] = 0.0; uniformIntroTextScene.dirty();
                     
                     this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureEqua, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
-                    this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(7, textureModel0, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
-                    this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(8, textureModel1, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+
 
                     uniformEqualizer.get()[0] = 1.0; uniformEqualizer.dirty();
                     
                     uniformEqualizerLevel0.get()[0] = timeObjects.FRQMusicSnare.value; uniformEqualizerLevel0.dirty();
                     uniformEqualizerLevel1.get()[0] = timeObjects.FRQMusicKick.value; uniformEqualizerLevel1.dirty();
-                    uniformEqualizerLevel2.get()[0] = (timeObjects.FRQMusicRiff.value + timeObjects.FRQMusicVocal.value); uniformEqualizerLevel2.dirty();
-                    uniformEqualizerLevel3.get()[0] = (timeObjects.FRQMusicSound1.value + timeObjects.FRQMusicSound2.value + timeObjects.FRQMusicSound3.value); uniformEqualizerLevel3.dirty();
+                    uniformEqualizerLevel2.get()[0] = (timeObjects.FRQMusicRiff.value + timeObjects.FRQMusicSound1.value + timeObjects.FRQMusicSound2.value + timeObjects.FRQMusicSound3.value); uniformEqualizerLevel2.dirty();
+                    uniformEqualizerLevel3.get()[0] = (timeObjects.FRQMusicSynth.value + timeObjects.FRQMusicVocal.value); uniformEqualizerLevel3.dirty();
+
+                    uniformShowModel.get()[0] = timeObjects.EqualizerSceneShowModel.value; uniformShowModel.dirty();
 
                     rotationX.set([1.0]);
                     rotationZ.set([0.0]);

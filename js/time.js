@@ -2,12 +2,12 @@ var timeEvents = [
     {
         "Event": "FRQMusicRiff", 
         "Note": "Note F0", 
-        "Time": "00.012"
+        "Time": "00.014"
     }, 
     {
         "Event": "FRQMusicSound1", 
         "Note": "Note A0", 
-        "Time": "00.012"
+        "Time": "00.015"
     }, 
     {
         "Event": "FRQMusicSound2", 
@@ -32,22 +32,22 @@ var timeEvents = [
     {
         "Event": "FRQMusicSound3", 
         "Note": "Note C1", 
-        "Time": "05.541"
+        "Time": "05.540"
     }, 
     {
         "Event": "FRQMusicChangePattern", 
         "Note": "Note G0", 
-        "Time": "07.381"
+        "Time": "07.380"
     }, 
     {
         "Event": "FRQMusicRiff", 
         "Note": "Note F0", 
-        "Time": "07.392"
+        "Time": "07.397"
     }, 
     {
         "Event": "FRQMusicSound1", 
         "Note": "Note A0", 
-        "Time": "07.412"
+        "Time": "07.417"
     }, 
     {
         "Event": "FRQMusicSound2", 
@@ -57,97 +57,97 @@ var timeEvents = [
     {
         "Event": "FRQMusicSound3", 
         "Note": "Note C1", 
-        "Time": "09.222"
+        "Time": "09.221"
     }, 
     {
         "Event": "FRQMusicRiff", 
         "Note": "Note F0", 
-        "Time": "11.063"
+        "Time": "11.070"
     }, 
     {
         "Event": "FRQMusicSound1", 
         "Note": "Note A0", 
-        "Time": "11.077"
+        "Time": "11.076"
     }, 
     {
         "Event": "FRQMusicSound2", 
         "Note": "Note B0", 
-        "Time": "11.994"
+        "Time": "12.000"
     }, 
     {
         "Event": "FRQMusicSound3", 
         "Note": "Note C1", 
-        "Time": "12.916"
+        "Time": "12.921"
     }, 
     {
         "Event": "FRQMusicChangePattern", 
         "Note": "Note G0", 
-        "Time": "14.756"
+        "Time": "14.764"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "14.761"
+        "Time": "14.765"
     }, 
     {
         "Event": "FRQMusicRiff", 
         "Note": "Note F0", 
-        "Time": "14.781"
+        "Time": "14.765"
     }, 
     {
         "Event": "FRQMusicSound1", 
         "Note": "Note A0", 
-        "Time": "14.781"
+        "Time": "14.765"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "15.216"
+        "Time": "15.223"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "15.684"
+        "Time": "15.691"
     }, 
     {
         "Event": "FRQMusicSound2", 
         "Note": "Note B0", 
-        "Time": "15.687"
+        "Time": "15.705"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "16.144"
+        "Time": "16.151"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "16.604"
+        "Time": "16.611"
     }, 
     {
         "Event": "FRQMusicSound3", 
         "Note": "Note C1", 
-        "Time": "16.606"
+        "Time": "16.626"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "17.064"
+        "Time": "17.071"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "17.534"
+        "Time": "17.543"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "18.004"
+        "Time": "18.003"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "18.454"
+        "Time": "18.463"
     }, 
     {
         "Event": "FRQMusicRiff", 
@@ -157,147 +157,162 @@ var timeEvents = [
     {
         "Event": "FRQMusicSound1", 
         "Note": "Note A0", 
-        "Time": "18.467"
+        "Time": "18.487"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "18.914"
+        "Time": "18.923"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "19.374"
+        "Time": "19.383"
     }, 
     {
         "Event": "FRQMusicSound2", 
         "Note": "Note B0", 
-        "Time": "19.388"
+        "Time": "19.387"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "19.837"
+        "Time": "19.846"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "20.297"
+        "Time": "20.306"
     }, 
     {
         "Event": "FRQMusicSound3", 
         "Note": "Note C1", 
-        "Time": "20.307"
+        "Time": "20.308"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "20.757"
+        "Time": "20.766"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "21.217"
+        "Time": "21.226"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "21.685"
+        "Time": "21.694"
     }, 
     {
         "Event": "FRQMusicChangePattern", 
         "Note": "Note G0", 
-        "Time": "22.145"
+        "Time": "22.154"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "22.147"
+        "Time": "22.170"
     }, 
     {
         "Event": "FRQMusicRiff", 
         "Note": "Note F0", 
-        "Time": "22.167"
+        "Time": "22.171"
     }, 
     {
         "Event": "FRQMusicSound1", 
         "Note": "Note A0", 
-        "Time": "22.167"
+        "Time": "22.172"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "22.605"
+        "Time": "22.614"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "22.629"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "23.065"
+        "Time": "23.074"
     }, 
     {
         "Event": "FRQMusicSound2", 
         "Note": "Note B0", 
-        "Time": "23.067"
+        "Time": "23.089"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "23.306"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "23.415"
+        "Time": "23.424"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "23.535"
+        "Time": "23.544"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "23.995"
+        "Time": "24.004"
     }, 
     {
         "Event": "FRQMusicSound3", 
         "Note": "Note C1", 
-        "Time": "24.008"
+        "Time": "24.009"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "24.455"
+        "Time": "24.464"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "24.915"
+        "Time": "24.924"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "25.375"
+        "Time": "25.384"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "25.837"
+        "Time": "25.846"
     }, 
     {
         "Event": "FRQMusicRiff", 
         "Note": "Note F0", 
-        "Time": "25.848"
-    }, 
-    {
-        "Event": "FRQMusicSound1", 
-        "Note": "Note A0", 
         "Time": "25.849"
     }, 
     {
+        "Event": "FRQMusicSound1", 
+        "Note": "Note A0", 
+        "Time": "25.850"
+    }, 
+    {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "26.297"
+        "Time": "26.306"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "26.309"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "26.757"
+        "Time": "26.766"
     }, 
     {
         "Event": "FRQMusicSound2", 
@@ -305,94 +320,114 @@ var timeEvents = [
         "Time": "26.769"
     }, 
     {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "27.004"
+    }, 
+    {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "27.217"
+        "Time": "27.226"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "27.686"
+        "Time": "27.694"
     }, 
     {
         "Event": "FRQMusicSound3", 
         "Note": "Note C1", 
-        "Time": "27.691"
+        "Time": "27.709"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "28.150"
+        "Time": "28.154"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "28.610"
+        "Time": "28.614"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "29.065"
+        "Time": "29.073"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "29.090"
     }, 
     {
         "Event": "FRQMusicChangePattern", 
         "Note": "Note G0", 
-        "Time": "29.534"
+        "Time": "29.537"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "29.549"
+        "Time": "29.556"
     }, 
     {
         "Event": "FRQMusicRiff", 
         "Note": "Note F0", 
-        "Time": "29.570"
+        "Time": "29.577"
     }, 
     {
         "Event": "FRQMusicVocal", 
         "Note": "Note D1", 
-        "Time": "29.591"
+        "Time": "29.577"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "29.598"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "29.758"
+        "Time": "29.765"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "30.003"
+        "Time": "30.000"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "30.228"
+        "Time": "30.226"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "30.466"
-    }, 
-    {
-        "Event": "FRQMusicVocal",
-        "Note": "Note D1", 
-        "Time": "30.478"
-    }, 
-    {
-        "Event": "FRQMusicSnare", 
-        "Note": "Note E0", 
-        "Time": "30.924"
-    }, 
-    {
-        "Event": "FRQMusicKick", 
-        "Note": "Note D0", 
-        "Time": "31.384"
+        "Time": "30.462"
     }, 
     {
         "Event": "FRQMusicVocal", 
         "Note": "Note D1", 
-        "Time": "31.397"
+        "Time": "30.476"
+    }, 
+    {
+        "Event": "FRQMusicSnare", 
+        "Note": "Note E0", 
+        "Time": "30.919"
+    }, 
+    {
+        "Event": "FRQMusicKick", 
+        "Note": "Note D0", 
+        "Time": "31.378"
+    }, 
+    {
+        "Event": "FRQMusicVocal", 
+        "Note": "Note D1", 
+        "Time": "31.392"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "31.393"
     }, 
     {
         "Event": "FRQMusicSnare", 
@@ -402,247 +437,327 @@ var timeEvents = [
     {
         "Event": "FRQMusicVocal", 
         "Note": "Note D1", 
-        "Time": "32.074"
+        "Time": "32.073"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "32.306"
+        "Time": "32.307"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "32.766"
+        "Time": "32.757"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "33.226"
+        "Time": "33.217"
     }, 
     {
         "Event": "FRQMusicRiff", 
         "Note": "Note F0", 
-        "Time": "33.237"
+        "Time": "33.230"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "33.694"
+        "Time": "33.685"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "34.154"
+        "Time": "34.145"
     }, 
     {
         "Event": "FRQMusicVocal", 
         "Note": "Note D1", 
-        "Time": "34.157"
+        "Time": "34.150"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "34.614"
+        "Time": "34.605"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "34.609"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "35.074"
+        "Time": "35.065"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "35.070"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "35.544"
+        "Time": "35.535"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "36.004"
+        "Time": "35.995"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "36.464"
+        "Time": "36.455"
     }, 
     {
         "Event": "FRQMusicChangePattern", 
         "Note": "Note G0", 
-        "Time": "36.924"
+        "Time": "36.915"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "36.937"
+        "Time": "36.931"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "36.931"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "37.384"
+        "Time": "37.375"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "37.605"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "37.846"
+        "Time": "37.837"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "38.306"
+        "Time": "38.297"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "38.766"
+        "Time": "38.757"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "38.770"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "39.226"
+        "Time": "39.217"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "39.694"
+        "Time": "39.695"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "40.154"
+        "Time": "40.155"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "40.170"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "40.504"
+        "Time": "40.495"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "40.614"
+        "Time": "40.605"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "40.610"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "41.074"
+        "Time": "41.065"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "41.544"
+        "Time": "41.535"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "41.550"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "42.004"
+        "Time": "41.995"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "42.464"
+        "Time": "42.455"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "42.470"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "42.924"
+        "Time": "42.915"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "43.266"
+        "Time": "43.257"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "43.614"
+        "Time": "43.605"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "43.847"
+        "Time": "43.837"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "44.074"
+        "Time": "44.065"
     }, 
     {
         "Event": "FRQMusicChangePattern", 
         "Note": "Note G0", 
-        "Time": "44.306"
+        "Time": "44.297"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "44.317"
+        "Time": "44.311"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "44.311"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "44.767"
+        "Time": "44.758"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "44.996"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "45.229"
+        "Time": "45.218"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "45.577"
+        "Time": "45.566"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "45.696"
+        "Time": "45.686"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "46.161"
+        "Time": "46.146"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "46.150"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "46.621"
+        "Time": "46.606"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "47.082"
+        "Time": "47.067"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "47.553"
+        "Time": "47.539"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "47.540"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "48.012"
+        "Time": "48.002"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "48.008"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "48.471"
+        "Time": "48.461"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "48.931"
+        "Time": "48.922"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "48.937"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "49.392"
+        "Time": "49.382"
     }, 
     {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "49.854"
+        "Time": "49.844"
+    }, 
+    {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "49.855"
     }, 
     {
         "Event": "FRQMusicSnare", 
         "Note": "Note E0", 
-        "Time": "50.314"
+        "Time": "50.304"
     }, 
     {
         "Event": "FRQMusicKick", 
@@ -657,7 +772,7 @@ var timeEvents = [
     {
         "Event": "FRQMusicChangePattern", 
         "Note": "Note G0", 
-        "Time": "51.692"
+        "Time": "51.694"
     }, 
     {
         "Event": "FRQMusicKick", 
@@ -670,9 +785,14 @@ var timeEvents = [
         "Time": "51.717"
     }, 
     {
+        "Event": "FRQMusicSynth", 
+        "Note": "Note E1", 
+        "Time": "51.737"
+    }, 
+    {
         "Event": "FRQMusicKick", 
         "Note": "Note D0", 
-        "Time": "52.152"
+        "Time": "52.146"
     }, 
     {
         "Event": "FRQMusicSnare", 
@@ -682,7 +802,7 @@ var timeEvents = [
     {
         "Event": "FRQMusicSound2", 
         "Note": "Note B0", 
-        "Time": "52.612"
+        "Time": "52.606"
     }, 
     {}
 ];
