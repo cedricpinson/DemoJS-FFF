@@ -293,11 +293,19 @@ var initParticles = function() {
             "          float x = unpack(texture2D( model0, vec2(u+0.0/2048.0,v)));",
             "          float y = unpack(texture2D( model0, vec2(u+1.0/2048.0,v)));",
             "          float z = unpack(texture2D( model0, vec2(u+2.0/2048.0,v)));",
+
+            "          float x2 = unpack(texture2D( model1, vec2(u+0.0/2048.0,v)));",
+            "          float y2 = unpack(texture2D( model1, vec2(u+1.0/2048.0,v)));",
+            "          float z2 = unpack(texture2D( model1, vec2(u+2.0/2048.0,v)));",
             "          material = 1.0;",
             "          distance = 1.0;",
             "          vec3 centerPos = vec3(x,y,z)-center;",
+            "          vec3 centerPos2 = vec3(x2,y2,z2)-center;",
             "          vec3 finalPos = center + (modelMatrix * (vec4(centerPos* 0.25, 1.0))).xyz;",
-            "          return finalPos;",
+            "          vec3 finalPos2 = center + (modelMatrix * (vec4(centerPos2* 0.25, 1.0))).xyz;",
+            "          float ratio = 0.5 + 0.5*cos(time);",
+            "          vec3 rrr = finalPos*ratio + (1.0-ratio)*finalPos2;",
+            "          return rrr;",
             "        }",
             "     if ( distance > 0.5) {",
             "       material = distance;",
@@ -432,10 +440,19 @@ var initParticles = function() {
     var textureModel0 = new osg.Texture();
     var loadModel0 = function() {
         var img = new Image;
-        img.onload = ready;
+        img.onload = loadModel1;
         img.src = 'model0.png';
         textureModel0.setImage(img);
         setNeareastFilter(textureModel0);
+    };
+
+    var textureModel1 = new osg.Texture();
+    var loadModel1 = function() {
+        var img = new Image;
+        img.onload = ready;
+        img.src = 'model1.png';
+        textureModel1.setImage(img);
+        setNeareastFilter(textureModel1);
     };
 
 
@@ -839,6 +856,7 @@ var initParticles = function() {
                     
                     this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureEqua, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
                     this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(7, textureModel0, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+                    this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(8, textureModel1, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
 
                     uniformEqualizer.get()[0] = 1.0; uniformEqualizer.dirty();
                     
