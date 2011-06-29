@@ -921,7 +921,7 @@ var initParticles = function() {
 
 
     var timeObjects = timeSetup(timeEvents);
-
+    var firstTime = true;
     var UpdateCallback = function (physics, render) {
         this.physics = physics;
         this.render = render;
@@ -961,7 +961,47 @@ var initParticles = function() {
                 uniformEqualizerScene.get()[0] = 0; uniformEqualizerScene.dirty();
                 uniformIntroTextScene.get()[0] = 0; uniformIntroTextScene.dirty();
 
-                if (timeObjects.IntroScene.value > 0.5) {
+                if (timeObjects.EqualizerScene.value > 0.5) {
+                    if (firstTime) {
+                        forceNewLife.set([1]);
+                    } else {
+                        forceNewLife.set([0]);
+                    }
+                    firstTime = false;
+
+                    uniformEqualizerScene.get()[0] = 1; uniformEqualizerScene.dirty();
+                    uniformIntroTextScene.get()[0] = 0.0; uniformIntroTextScene.dirty();
+                    
+                    this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureEqua, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+
+
+                    uniformEqualizer.get()[0] = 1.0; uniformEqualizer.dirty();
+                    
+                    uniformEqualizerLevel0.get()[0] = timeObjects.FRQMusicSnare.value; uniformEqualizerLevel0.dirty();
+
+                    uniformEqualizerLevel1.get()[0] = timeObjects.FRQMusicKick.value; uniformEqualizerLevel1.dirty();
+                    uniformEqualizerLevel2.get()[0] = (timeObjects.FRQMusicRiff.value + timeObjects.FRQMusicSound1.value + timeObjects.FRQMusicSound2.value + timeObjects.FRQMusicSound3.value); uniformEqualizerLevel2.dirty();
+                    uniformEqualizerLevel3.get()[0] = (timeObjects.FRQMusicSynth.value + timeObjects.FRQMusicVocal.value); uniformEqualizerLevel3.dirty();
+
+                    uniformShowModel.get()[0] = timeObjects.EqualizerSceneShowModel.value; uniformShowModel.dirty();
+
+                    rotationX.set([1.0]);
+                    rotationZ.set([0.0]);
+                    //weightVelocityField.set([0.4* (0.5 + 0.5*Math.cos(t))]);
+                    //forceNewLife.set([1]);
+                    weightDistanceMap.set([1.0]);
+                    freeze.set([1.0]);
+
+                    var vec = [0,0,0];
+                    weightVelocityField.set([0.3* (0.5 + 0.5*Math.cos(t*0.2))]);
+                    if (false && timeObjects.ModelRotate.value > 0.1) {
+                        vec[timeObjects.ModelRotate.axis] = timeObjects.ModelRotate.axisDirection;
+                        osg.Matrix.makeRotate(t, vec[0],vec[1],vec[2], modelMatrix.get());
+                        modelMatrix.dirty();
+                    }
+
+
+                } else if (timeObjects.IntroScene.value > 0.5) {
                     uniformIntroTextScene.get()[0] = 1.0; uniformIntroTextScene.dirty();
                     uniformWindIntro.get()[0] = timeObjects.WindIntro.value; uniformWindIntro.dirty();
                     if (timeObjects.Text4.value > 0.0) {
@@ -995,38 +1035,7 @@ var initParticles = function() {
                     modelMatrix.dirty();
                 }
 
-                if (timeObjects.EqualizerScene.value > 0.5) {
-                    uniformEqualizerScene.get()[0] = 1; uniformEqualizerScene.dirty();
-                    uniformIntroTextScene.get()[0] = 0.0; uniformIntroTextScene.dirty();
-                    
-                    this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureEqua, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
 
-
-                    uniformEqualizer.get()[0] = 1.0; uniformEqualizer.dirty();
-                    
-                    uniformEqualizerLevel0.get()[0] = timeObjects.FRQMusicSnare.value; uniformEqualizerLevel0.dirty();
-
-                    uniformEqualizerLevel1.get()[0] = timeObjects.FRQMusicKick.value; uniformEqualizerLevel1.dirty();
-                    uniformEqualizerLevel2.get()[0] = (timeObjects.FRQMusicRiff.value + timeObjects.FRQMusicSound1.value + timeObjects.FRQMusicSound2.value + timeObjects.FRQMusicSound3.value); uniformEqualizerLevel2.dirty();
-                    uniformEqualizerLevel3.get()[0] = (timeObjects.FRQMusicSynth.value + timeObjects.FRQMusicVocal.value); uniformEqualizerLevel3.dirty();
-
-                    uniformShowModel.get()[0] = timeObjects.EqualizerSceneShowModel.value; uniformShowModel.dirty();
-
-                    rotationX.set([1.0]);
-                    rotationZ.set([0.0]);
-                    //weightVelocityField.set([0.4* (0.5 + 0.5*Math.cos(t))]);
-                    //forceNewLife.set([1]);
-                    weightDistanceMap.set([1.0]);
-                    freeze.set([1.0]);
-
-                    var vec = [0,0,0];
-                    weightVelocityField.set([0.3* (0.5 + 0.5*Math.cos(t*0.2))]);
-                    if (false && timeObjects.ModelRotate.value > 0.1) {
-                        vec[timeObjects.ModelRotate.axis] = timeObjects.ModelRotate.axisDirection;
-                        osg.Matrix.makeRotate(t, vec[0],vec[1],vec[2], modelMatrix.get());
-                        modelMatrix.dirty();
-                    }
-                }
             }
 
             this.physics.switchBuffer();

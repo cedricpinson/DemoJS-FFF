@@ -363,7 +363,7 @@ var timeSetup = function(eventData) {
 
     dictObject.EqualizerScene = { value: 0.0};
     anim("EqualizerScene",dictObject.EqualizerScene).to(
-        14.756,
+        14.556,
         { value:1.0 },
         0.00001,
         Timeline.Easing.Linear.None
