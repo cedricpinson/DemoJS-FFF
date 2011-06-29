@@ -341,10 +341,10 @@ var initParticles = function() {
             "         }",
             "       } else {",
             "          //life = 0.6;",
-            "          //life= 0.6;",
+            "          //life = 0.6;",
             "          material = showModel;",
             "          distance = 1.0;",
-            "          wind = 1.0;",
+            "          wind = 2.857142857;",
             "          vec3 rrr = getModel(modelRatio);",
             "          vec3 vec = rrr-currentPosition;",
             "          distance = (0.5-length(vec))/0.5;",
@@ -354,6 +354,9 @@ var initParticles = function() {
             "          if (rotationX >= 0.01) {",
             "             targetVec += getRotationalVelocityField(currentPosition, vec3(1.0, 0.0, 0.0), rotationX);",
             "          }",
+            "          targetVec *= 0.0;",
+            "          velocity *= 0.0;",
+            "          currentPosition = rrr;",
             "       }",
             "    }",
             "",
@@ -1024,12 +1027,15 @@ var initParticles = function() {
                     freeze.set([1.0]);
 
                     var vec = [0,0,0];
-                    weightVelocityField.set([0.3* (0.5 + 0.5*Math.cos(t*0.2))]);
+                    rotationX.set([0.0]);
+                    weightVelocityField.set([0.0* (0.5 + 0.5*Math.cos(t*0.2))]);
+                    osg.Matrix.makeRotate(Math.PI, 0,0,1, modelMatrix.get());
+                    osg.Matrix.preMult(modelMatrix.get(), osg.Matrix.makeRotate(Math.PI/3.0, 1,0,0, []));
                     if (false && timeObjects.ModelRotate.value > 0.1) {
                         vec[timeObjects.ModelRotate.axis] = timeObjects.ModelRotate.axisDirection;
                         osg.Matrix.makeRotate(t, vec[0],vec[1],vec[2], modelMatrix.get());
-                        modelMatrix.dirty();
                     }
+                    modelMatrix.dirty();
 
 
                 } else if (timeObjects.IntroScene.value > 0.5) {
