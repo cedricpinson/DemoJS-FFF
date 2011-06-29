@@ -125,12 +125,13 @@ var initParticles = function() {
             "  return vec3(x,y,z);",
             "}",
             "vec3 getModel(float ratio) {",
+            "  vec3 modelPosition = vec3(0.8,0.8,0.5);",
             "  vec2 uvx = getModelBaseUV();",
             "  vec2 uvy = uvx + vec2(1.0/2048.0, 0.0);",
             "  vec2 uvz = uvx + vec2(2.0/2048.0, 0.0);",
             "  vec3 centerPos = getModel0(uvx, uvy, uvz)-worldCenter;",
             "  vec3 centerPos2 = getModel1(uvx, uvy, uvz)-worldCenter;",
-            "  float scale = 0.3;",
+            "  float scale = 0.2;",
             "  vec3 finalPos = worldCenter + (modelMatrix * (vec4(centerPos* scale, 1.0))).xyz;",
             "  vec3 finalPos2 = worldCenter + (modelMatrix * (vec4(centerPos2* scale, 1.0))).xyz;",
             "  vec3 rrr = finalPos*(1.0-modelRatio) + modelRatio*finalPos2;",
@@ -840,7 +841,7 @@ var initParticles = function() {
             "  color = vec4(x * alpha , y * alpha, z * alpha, alpha * distFromEdge);",
             "  if (equalizer >0.0 && distance > 0.5) {",
             "     float b = (1.0-distance);",
-            "     color = vec4(0.0, 0.0, 0.0, 1.0 * alpha);",
+            "     color = vec4(0.0, 0.0, 0.0, 1.0 * alpha * material);",
             "     gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
             "     gl_PointSize = 2.0;",
             "     return ;",
@@ -894,23 +895,25 @@ var initParticles = function() {
     render.setDisplayTexture(physics.getDisplayTexture());
 
     var models = [ textureModel0, textureModel1, textureModel2, textureModel3, textureModel4, textureModel5 ];
+    
+    var modelIndex = -1;
     changeModel = function() {
         var st = physics.root.getOrCreateStateSet();
-        if (this.model === undefined) {
+        if (modelIndex === -1) {
             st.setTextureAttributeAndMode(7, models[0], osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
-            this.model = 0;
-            osg.log("first model");
+            osg.log("First model");
+            modelIndex++;
         } else {
-            var previousIndex = (this.model)%2;
-            var previousModel = this.model;
-            this.model++;
-            var nextIndex = (this.model)%2;
-            var nextModel = this.model;
+            var previousIndex = (modelIndex)%2;
+            var previousModel = modelIndex;
+            modelIndex++;
+            var nextIndex = (modelIndex)%2;
+            var nextModel = modelIndex;
             uniformModelRatio.get()[0] = nextIndex; uniformModelRatio.dirty();
 
             st.setTextureAttributeAndMode(7+previousIndex, models[previousModel], osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
             st.setTextureAttributeAndMode(7+nextIndex, models[nextModel], osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
-            osg.log("change model from " + previousIndex + " to " + nextIndex);
+            osg.log("change model from " + previousIndex + "(" + previousModel + ")  to " + nextIndex + "("+nextModel+")");
         }
     };
 
@@ -941,7 +944,9 @@ var initParticles = function() {
             } else if (this.nbUpdate == 3) {
                 var audioSound = document.getElementById('zik');
                 audioSound.play();
-                audioSound.currentTime = 13.0;
+                //audioSound.currentTime = 13.0;
+                //audioSound.currentTime = 28.0;
+                //audioSound.currentTime = 11.0;
 
             } else {
 
@@ -1016,7 +1021,7 @@ var initParticles = function() {
 
                     var vec = [0,0,0];
                     weightVelocityField.set([0.3* (0.5 + 0.5*Math.cos(t*0.2))]);
-                    if (timeObjects.ModelRotate.value > 0.1) {
+                    if (false && timeObjects.ModelRotate.value > 0.1) {
                         vec[timeObjects.ModelRotate.axis] = timeObjects.ModelRotate.axisDirection;
                         osg.Matrix.makeRotate(t, vec[0],vec[1],vec[2], modelMatrix.get());
                         modelMatrix.dirty();

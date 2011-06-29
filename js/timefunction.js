@@ -377,6 +377,7 @@ var timeSetup = function(eventData) {
     anim("EqualizerSceneShowModel",dictObject.EqualizerSceneShowModel).to(
         16.756,
         { value:1.0 },
+        changeModel, // to setup the first model
         5.0,
         Timeline.Easing.Linear.None
     ).to(
