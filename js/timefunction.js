@@ -367,7 +367,7 @@ var timeSetup = function(eventData) {
         0.00001
     );
 
-    dictObject.EqualizerScene = { value: 0.0};
+    dictObject.EqualizerScene = { value: 0.0 , timeStart:14.556};
     anim("EqualizerScene",dictObject.EqualizerScene).to(
         14.556,
         { value:1.0 },
@@ -382,7 +382,7 @@ var timeSetup = function(eventData) {
 
     dictObject.EqualizerSceneShowModel = { value: 0.0};
     anim("EqualizerSceneShowModel",dictObject.EqualizerSceneShowModel).to(
-        16.756,
+        22.629-3.0,
         { value:1.0 },
         changeModel, // to setup the first model
         5.0,

@@ -25,10 +25,14 @@ var start2 = function() {
     viewer.setupManipulator();
 
     var keys = initializeCameraPath(cameraPath);
-    var cameraTarget = [ 0.7 , 0.7, 0.5 ];
+    var target = initializeCameraPath(targetPath);
+
+    //var cameraTarget = [ 0.7 , 0.7, 0.5 ];
     setEqualizerCameraPosition = function() {
+        var t = this.timeStart;
         viewer.getManipulator().getInverseMatrix = function() {
-            var position = keys.getVec3(audioSound.currentTime - 14.0);
+            var position = keys.getVec3(audioSound.currentTime - t);
+            var cameraTarget = target.getVec3(audioSound.currentTime - t);
             return osg.Matrix.makeLookAt(position,
                                          cameraTarget,
                                          [0,0,1], 
@@ -42,7 +46,7 @@ var start2 = function() {
 
     viewer.view.setComputeNearFar(false);
     var ratio = w / h;
-    viewer.view.setProjectionMatrix(osg.Matrix.makePerspective(60, ratio, 0.1, 100.0));
+    viewer.view.setProjectionMatrix(osg.Matrix.makePerspective(60.0, ratio, 0.1, 100.0));
 
     grp.addChild(initParticles());
     viewer.setScene(grp);

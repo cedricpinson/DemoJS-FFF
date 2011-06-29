@@ -2,6 +2,17 @@
 
 
 var initParticles = function() {
+    var optionsURL = function() {
+        var vars = [], hash;
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for(var i = 0; i < hashes.length; i++)
+        {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1];
+        }
+        return vars;
+    };
 
     var root = new osg.Node();
     root.setNodeMask(0);
@@ -959,7 +970,12 @@ var initParticles = function() {
             } else if (this.nbUpdate == 3) {
                 var audioSound = document.getElementById('zik');
                 audioSound.play();
-                //audioSound.currentTime = 13.0;
+                var options = optionsURL();
+                var start = 0.0;
+                if (options['time'] !== undefined) {
+                    start = options['time'];
+                }
+                audioSound.currentTime = start;
                 //audioSound.currentTime = 28.0;
                 //audioSound.currentTime = 11.0;
 
