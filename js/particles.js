@@ -319,6 +319,7 @@ var initParticles = function() {
             "      }",
             "   } else if (equalizerScene == 1) {",
             "       if (FragTexCoord0.y < equaRange) {", 
+
             "          if (computeEqualizer(currentPosition, equaBottom0, equaSize0, equalizerLevel0) == 0) { ",
             "             if (computeEqualizer(currentPosition, equaBottom1, equaSize1, equalizerLevel1) == 0) {",
             "                if (computeEqualizer(currentPosition, equaBottom2, equaSize2, equalizerLevel2) == 0) {",
@@ -839,7 +840,7 @@ var initParticles = function() {
             "  color = vec4(x * alpha , y * alpha, z * alpha, alpha * distFromEdge);",
             "  if (equalizer >0.0 && distance > 0.5) {",
             "     float b = (1.0-distance);",
-            "     color = vec4(0.0, 0.0, 0.0, 1.0 * alpha * material);",
+            "     color = vec4(0.0, 0.0, 0.0, 1.0 * alpha);",
             "     gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
             "     gl_PointSize = 2.0;",
             "     return ;",
@@ -990,7 +991,6 @@ var initParticles = function() {
                 }
 
                 if (timeObjects.EqualizerScene.value > 0.5) {
-                    //osg.log("EqualizerScene " + t);
                     uniformEqualizerScene.get()[0] = 1; uniformEqualizerScene.dirty();
                     uniformIntroTextScene.get()[0] = 0.0; uniformIntroTextScene.dirty();
                     
@@ -1000,6 +1000,7 @@ var initParticles = function() {
                     uniformEqualizer.get()[0] = 1.0; uniformEqualizer.dirty();
                     
                     uniformEqualizerLevel0.get()[0] = timeObjects.FRQMusicSnare.value; uniformEqualizerLevel0.dirty();
+
                     uniformEqualizerLevel1.get()[0] = timeObjects.FRQMusicKick.value; uniformEqualizerLevel1.dirty();
                     uniformEqualizerLevel2.get()[0] = (timeObjects.FRQMusicRiff.value + timeObjects.FRQMusicSound1.value + timeObjects.FRQMusicSound2.value + timeObjects.FRQMusicSound3.value); uniformEqualizerLevel2.dirty();
                     uniformEqualizerLevel3.get()[0] = (timeObjects.FRQMusicSynth.value + timeObjects.FRQMusicVocal.value); uniformEqualizerLevel3.dirty();

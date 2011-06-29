@@ -56,7 +56,7 @@ Timeline.prototype.play = function() {
 Timeline.prototype.start = function() {
     var self = this;
     setInterval(function() {
-        self.update(Math.floor(1000/30.0));
+        self.update(1.0/30.0);
     }, 1000/30);
 };
 
@@ -172,26 +172,26 @@ Anim.prototype.to = function() {
     }                   
     else {
         properties = {};
-    }                  
+    }
 
-    if (typeof(args[0]) == "function") {
+    if (typeof(args[0]) == "function" || args[0] === undefined) {
         startFunc = args.shift();    
-    }                   
+    }
 
-    if (typeof(args[0]) == "function") {
+    if (typeof(args[0]) == "function" || args[0] === undefined) {
         endFunc = args.shift();    
-    }                   
+    }
     
     if (typeof(args[0]) == "number") {
         duration = args.shift();
-    }                   
+    }
     else {
         duration = 1;
-    }   
+    }
     
     if (typeof(args[0]) == "function") {
         easing = args.shift();    
-    }                   
+    }
     else {
         easing = Timeline.Easing.Linear.EaseNone;
     }

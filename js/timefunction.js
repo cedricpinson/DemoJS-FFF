@@ -24,13 +24,13 @@ var timeSetup = function(eventData) {
                  { 
                      "start": 0.1,
                      "stay": 0.0001,
-                     "end": 0.1,
+                     "end": 0.1
                  },
                  "FRQMusicKick": 
                  { 
                      "start": 0.1,
                      "stay": 0.0001,
-                     "end": 0.1,
+                     "end": 0.1
                  },
                  "FRQMusicVocal": 
                  { 
@@ -38,6 +38,35 @@ var timeSetup = function(eventData) {
                      "stay": 0.0001,
                      "end": 0.1,
                      "func": changeModel
+                 },
+                 "FRQMusicSound1": 
+                 { 
+                     "offset": 0.3,
+                     "start": 0.2,
+                     "stay": 0.3,
+                     "end": 0.4
+                 },
+                 "FRQMusicSound2": 
+                 { 
+                     "offset": 0.3,
+                     "start": 0.2,
+                     "stay": 0.3,
+                     "end": 0.4
+                 },
+                 "FRQMusicSound3": 
+                 { 
+                     "offset": 0.3,
+                     "start": 0.2,
+                     "stay": 0.3,
+                     "end": 0.4
+                 },
+
+                 "FRQMusicSynth":
+                 {
+                     "offset": 0.3,
+                     "start": 0.2,
+                     "stay": 0.4,
+                     "end": 1.2
                  },
                };
 
@@ -63,14 +92,18 @@ var timeSetup = function(eventData) {
         var start = 0.0001;
         var stay = 0.5;
         var end = 0.1;
+        var offset = 0.0;
         var func = undefined;
         if (duration[eventName] !== undefined) {
             start = duration[eventName].start;
             stay = duration[eventName].stay;
             end = duration[eventName].end;
             func = duration[eventName].func;
+            if (duration[eventName].offset !== undefined) {
+                offset = duration[eventName].offset;
+            }
         }
-        anim(eventName,dictObject[eventName]).to( time-start,
+        anim(eventName,dictObject[eventName]).to( time-start + offset,
                                                   { value:1.0 },
                                                   func,
                                                   start,
@@ -79,6 +112,7 @@ var timeSetup = function(eventData) {
                                                     stay,
                                                     { value:0.0},
                                                     end,
+                                                    //Timeline.Easing.Cubic.EaseOut
                                                     Timeline.Easing.Linear.EaseNone
                                                 );
     }
