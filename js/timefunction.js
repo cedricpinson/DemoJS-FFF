@@ -118,11 +118,13 @@ var timeSetup = function(eventData) {
     }
 
 
+    var axisOrder = [ 0, 2 ,1,
+                      2, 0, 1,
+                      0, 2, 1,
+                      2, 0, 1];
     var axisIndex = 0;
     var selectAxis = function() {
-        this.axis = axisIndex;
-        axisIndex = (axisIndex + 1)%2;
-
+        this.axis = axisOrder[axisIndex++];
         this.axisDirection = 1;
         if (0.5 - Math.random() < 0.0) {
             this.axisDirection = -1;
@@ -176,8 +178,9 @@ var timeSetup = function(eventData) {
 
     dictObject.WindIntro = { value: 0.0};
     var windStartValue = 6.0;
-    var windWaitValue = 0.4;
-    var windDurationRestore = 0.5;
+    var windWaitValue = 0.5;
+    var windDurationRestore = 0.2;
+    var windEndValue = 0.5;
     anim("WindIntro",dictObject.WindIntro).to(
         0.02,
         { value: windStartValue },
@@ -185,7 +188,7 @@ var timeSetup = function(eventData) {
         Timeline.Easing.Cubic.EaseIn
     ).to(
         windWaitValue,
-        { value:1.0},
+        { value: windEndValue},
         windDurationRestore
     );
     anim("WindIntro",dictObject.WindIntro).to(
@@ -195,7 +198,7 @@ var timeSetup = function(eventData) {
         Timeline.Easing.Cubic.EaseIn
     ).to(
         windWaitValue,
-        { value:1.0},
+        { value:windEndValue},
         windDurationRestore
     );
     anim("WindIntro",dictObject.WindIntro).to(
@@ -205,7 +208,7 @@ var timeSetup = function(eventData) {
         Timeline.Easing.Cubic.EaseIn
     ).to(
         windWaitValue,
-        { value:1.0},
+        { value: windEndValue},
         windDurationRestore
     );
     anim("WindIntro",dictObject.WindIntro).to(
@@ -215,7 +218,7 @@ var timeSetup = function(eventData) {
         Timeline.Easing.Cubic.EaseIn
     ).to(
         windWaitValue,
-        { value:1.0},
+        { value: windEndValue},
         windDurationRestore
     );
 
@@ -365,6 +368,7 @@ var timeSetup = function(eventData) {
     anim("EqualizerScene",dictObject.EqualizerScene).to(
         14.556,
         { value:1.0 },
+        setEqualizerCameraPosition,
         0.00001,
         Timeline.Easing.Linear.None
     ).to(

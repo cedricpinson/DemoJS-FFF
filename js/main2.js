@@ -33,6 +33,10 @@ var start2 = function() {
 
     //grp.addChild(createSceneText());
     viewer.getManipulator().computeHomePosition();
+
+    setEqualizerCameraPosition = function() {
+        //viewer.getManipulator().
+    };
   
     var audioSound=document.getElementById('zik');
 

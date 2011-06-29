@@ -1,6 +1,7 @@
 /** -*- compile-command: "jslint-cli particles.js" -*- */
 
 var changeModel;
+var setEqualizerCameraPosition;
 
 var initParticles = function() {
 
@@ -125,15 +126,15 @@ var initParticles = function() {
             "  return vec3(x,y,z);",
             "}",
             "vec3 getModel(float ratio) {",
-            "  vec3 modelPosition = vec3(0.8,0.8,0.5);",
+            "  vec3 modelPosition = vec3(0.7,0.7,0.5);",
             "  vec2 uvx = getModelBaseUV();",
             "  vec2 uvy = uvx + vec2(1.0/2048.0, 0.0);",
             "  vec2 uvz = uvx + vec2(2.0/2048.0, 0.0);",
             "  vec3 centerPos = getModel0(uvx, uvy, uvz)-worldCenter;",
             "  vec3 centerPos2 = getModel1(uvx, uvy, uvz)-worldCenter;",
             "  float scale = 0.2;",
-            "  vec3 finalPos = worldCenter + (modelMatrix * (vec4(centerPos* scale, 1.0))).xyz;",
-            "  vec3 finalPos2 = worldCenter + (modelMatrix * (vec4(centerPos2* scale, 1.0))).xyz;",
+            "  vec3 finalPos = modelPosition + (modelMatrix * (vec4(centerPos* scale, 1.0))).xyz;",
+            "  vec3 finalPos2 = modelPosition + (modelMatrix * (vec4(centerPos2* scale, 1.0))).xyz;",
             "  vec3 rrr = finalPos*(1.0-modelRatio) + modelRatio*finalPos2;",
             "  return rrr;",
             "}",
@@ -444,12 +445,22 @@ var initParticles = function() {
         loadingComplete.nbLoad++;
     };
 
+    var texturePoint = new osg.Texture();
+    var loadPoint = function() {
+        var img = new Image;
+        loadingComplete.addRessource();
+        img.onload = function() { loadingComplete() };
+        img.src = 'point.png';
+        texturePoint.setImage(img);
+        //setNeareastFilter(textureEqua);
+    };
+
     var textureEqua = new osg.Texture();
     var loadEqua = function() {
         var img = new Image;
         loadingComplete.addRessource();
         img.onload = function() { loadingComplete() };
-        img.src = 'equa_grad.png';
+        img.src = 'equa2_grad.png';
         textureEqua.setImage(img);
         setNeareastFilter(textureEqua);
     };
@@ -565,6 +576,7 @@ var initParticles = function() {
 
     // loading
     loadDefaultImage();
+    loadPoint();
     loadEqua();
     loadFR();
     loadSY();
@@ -769,6 +781,8 @@ var initParticles = function() {
             this.stateSet.setTextureAttributeAndMode(0, textureArray[0]);
             this.stateSet.setTextureAttributeAndMode(1, textureArray[1]);
             this.stateSet.setTextureAttributeAndMode(2, textureArray[2]);
+            this.stateSet.setTextureAttributeAndMode(3, texturePoint);
+            
         }
     };
 
@@ -845,7 +859,7 @@ var initParticles = function() {
             "     gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
             "     gl_PointSize = 2.0;",
             "     return ;",
-            "  } else if (material > 0.3 && material < 0.8) {",
+            "  } else if (material > 0.3 && material < 0.9) {",
             "     float b = (1.0-distance);",
             "     color = vec4(0.0, 0.0, 0.0, 1.0 * alpha);",
             "     gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
@@ -854,7 +868,7 @@ var initParticles = function() {
             "  }",
             "  //gl_Position = ProjectionMatrix * ModelViewMatrix * v;",
             "  gl_Position = vec4(0.0,0.0,-10000.0,1.0); // clip it",
-            "  gl_PointSize = 1.0;",
+            "  //gl_PointSize = 2.0;",
             "}",
             ""
         ].join('\n');
@@ -865,11 +879,14 @@ var initParticles = function() {
             "precision highp float;",
             "#endif",
             "varying vec4 color;",
+            "uniform sampler2D Point;",
             "void main(void) {",
             "if (color[3] < 0.01) {",
             "   discard;",
             "}",
-            "gl_FragColor = color;",
+            "vec4 col = texture2D(Point, gl_PointCoord);",
+            "col *= vec4(col.a, col.a, col.a ,1.0);",
+            "gl_FragColor = col*color;",
             "}",
             ""
         ].join('\n');
@@ -885,6 +902,7 @@ var initParticles = function() {
         stateset.addUniform(osg.Uniform.createInt1(0,"X"));
         stateset.addUniform(osg.Uniform.createInt1(1,"Y"));
         stateset.addUniform(osg.Uniform.createInt1(2,"Z"));
+        stateset.addUniform(osg.Uniform.createInt1(3,"Point"));
         stateset.addUniform(uniformEqualizer);
 
         return new Render(node, stateset);
@@ -916,7 +934,6 @@ var initParticles = function() {
             osg.log("change model from " + previousIndex + "(" + previousModel + ")  to " + nextIndex + "("+nextModel+")");
         }
     };
-
 
 
 
