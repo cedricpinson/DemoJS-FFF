@@ -22,7 +22,6 @@ var start2 = function() {
     viewer.setupManipulator();
 
     var grp = new osg.Node();
-    grp.addChild(initParticles());
     viewer.view.setClearColor([0.0, 0.0, 0.0, 0.0]);
 
     viewer.view.setComputeNearFar(false);
@@ -34,9 +33,6 @@ var start2 = function() {
     //grp.addChild(createSceneText());
     viewer.getManipulator().computeHomePosition();
 
-    setEqualizerCameraPosition = function() {
-        //viewer.getManipulator().
-    };
   
     var audioSound=document.getElementById('zik');
 
@@ -54,9 +50,22 @@ var start2 = function() {
         }
     };
 
+    var keys = initializeCameraPath(cameraPath);
+    var cameraTarget = [ 0.7 , 0.7, 0.5 ];
+    setEqualizerCameraPosition = function() {
+        viewer.getManipulator().getInverseMatrix = function() {
+            var position = keys.getVec3(audioSound.currentTime - 14.0);
+            return osg.Matrix.makeLookAt(position,
+                                         cameraTarget,
+                                         [0,0,1], 
+                                         []);
+        };
+    };
+
     grp.setUpdateCallback(new MainUpdate());
 
 
+    grp.addChild(initParticles());
 
     viewer.run();
 };

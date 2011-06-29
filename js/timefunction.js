@@ -1,3 +1,6 @@
+var setEqualizerCameraPosition;
+var changeModel;
+
 var timeSetup = function(eventData) {
     var dictObject = {};
 

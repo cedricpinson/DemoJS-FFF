@@ -1,7 +1,5 @@
 /** -*- compile-command: "jslint-cli particles.js" -*- */
 
-var changeModel;
-var setEqualizerCameraPosition;
 
 var initParticles = function() {
 
