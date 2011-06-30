@@ -17,6 +17,16 @@ var start2 = function() {
     var viewer = new osgViewer.Viewer(canvas, { antialias: true, 
                                                 preserveDrawingBuffer: false, 
                                                 alpha: true  } );
+    
+
+    var numTexturesAvailableInVertexShader = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+    osg.log("Nb Texture Unit in vertex shader " + numTexturesAvailableInVertexShader);
+    if (numTexturesAvailableInVertexShader < 9) {
+        var msg = "This demo requires 9 texture unit on vertex shader and you have " + numTexturesAvailableInVertexShader;
+        osg.log(msg);
+        $('#loading').append("<div id=erreur> " + msg + "<br>This problem is often because of Angle or with very low graphics cards.<br>You can fix it following instructions:<br>firefox: go to about:config and set webgl.prefer-native-gl to true.<br>chrome: run chrome with the --use-gl=desktop command-line argument.</div>");
+        return;
+    }
 
     var audioSound=document.getElementById('zik');
 
