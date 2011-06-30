@@ -581,6 +581,16 @@ var initParticles = function() {
         setNeareastFilter(textureModel5);
     };
 
+    var textureModel6 = new osg.Texture();
+    var loadModel6 = function() {
+        var img = new Image;
+        loadingComplete.addRessource();
+        img.onload = function() { loadingComplete() };
+        img.src = 'model6.png';
+        textureModel6.setImage(img);
+        setNeareastFilter(textureModel6);
+    };
+
 
     var defaultImage;
     var loadDefaultImage = function() {
@@ -604,7 +614,7 @@ var initParticles = function() {
     loadModel3();
     loadModel4();
     loadModel5();
-    //loadModel5();
+    loadModel6();
 
 
     var textureIndex = 0;
@@ -939,19 +949,23 @@ var initParticles = function() {
     var render = createRender();
     render.setDisplayTexture(physics.getDisplayTexture());
 
-    var models = [ textureModel0, textureModel1, textureModel2, textureModel3, textureModel4, textureModel5 ];
+    var models = [ textureModel0, textureModel1, textureModel2, textureModel3, textureModel4, textureModel5, textureModel6 ];
     var modelsScale = [ 0.2, 
                         0.2, 
                         0.2, 
                         0.2, 
-                        0.2 , 
-                        0.5];
+                        0.2, 
+                        0.5,
+                        0.3
+                      ];
     var modelsPos = [ [0.7,0.7,0.5],
                       [0.7,0.7,0.5],
                       [0.7,0.7,0.5],
                       [0.7,0.7,0.5],
                       [0.7,0.7,0.5],
-                      [0.6,0.6,0.5] ];
+                      [0.6,0.6,0.5],
+                      [0.6,0.6,0.5] 
+                    ];
     var uniformsModelScale = [uniformScaleModel0, uniformScaleModel1 ];
     var uniformsModelPosition = [uniformPositionModel0, uniformPositionModel1 ];
     
@@ -1062,14 +1076,15 @@ var initParticles = function() {
 
                     rotationX.set([1.0]);
                     rotationZ.set([0.0]);
-                    //weightVelocityField.set([0.4* (0.5 + 0.5*Math.cos(t))]);
-                    //forceNewLife.set([1]);
                     weightDistanceMap.set([1.0]);
                     freeze.set([1.0]);
 
                     var vec = [0,0,0];
                     rotationX.set([0.0]);
-                    weightVelocityField.set([0.3* (0.5 + 0.5*Math.cos(t*0.2))]);
+
+                    var changeAtFirefoxLogo = 1.0-timeObjects.EqualizerSceneDisplayFirefox.value;
+                    weightVelocityField.set([changeAtFirefoxLogo * 0.3* (0.5 + 0.5*Math.cos(t*0.2))]);
+                    
                     osg.Matrix.makeRotate(Math.PI, 0,0,1, modelMatrix.get());
                     osg.Matrix.preMult(modelMatrix.get(), osg.Matrix.makeRotate(Math.PI/3.0, 1,0,0, []));
                     if (false && timeObjects.ModelRotate.value > 0.1) {

@@ -393,6 +393,19 @@ var timeSetup = function(eventData) {
         0.00001
     );
 
+    dictObject.EqualizerSceneDisplayFirefox = { value: 0.0};
+    anim("EqualizerSceneDisplayFirefox",dictObject.EqualizerSceneDisplayFirefox).to(
+        45,
+        { value:1.0 },
+        changeModel, // just to switch the last model
+        0.5,
+        Timeline.Easing.Linear.None
+    ).to(
+        3.0,
+        { value:0.4},
+        0.5
+    );
+
 
 
     dictObject.ModelRotate = { value: 0.0};
