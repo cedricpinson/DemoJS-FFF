@@ -395,15 +395,38 @@ var timeSetup = function(eventData) {
 
     dictObject.EqualizerSceneDisplayFirefox = { value: 0.0};
     anim("EqualizerSceneDisplayFirefox",dictObject.EqualizerSceneDisplayFirefox).to(
-        45,
+        40.77,
         { value:1.0 },
         changeModel, // just to switch the last model
         0.5,
         Timeline.Easing.Linear.None
     ).to(
         3.0,
-        { value:0.4},
+        { value:0.9},
         0.5
+    );
+    dictObject.EqualizerSceneDisplayFirefoxScale = { value: 1.0};
+    anim("EqualizerSceneDisplayFirefoxScale",dictObject.EqualizerSceneDisplayFirefoxScale).to(
+        40.77,
+        { value: 1.5 },
+        2.0,
+        Timeline.Easing.Linear.None
+    );
+
+    anim("EqualizerSceneShowModel",dictObject.EqualizerSceneShowModel).to(
+        54.606,
+        { value: 0.0 },
+        1.5,
+        Timeline.Easing.Linear.None
+    );
+
+
+    dictObject.EqualizerSceneFinish = { value: 0.0};
+    anim("EqualizerSceneFinish",dictObject.EqualizerSceneFinish).to(
+        53.606,
+        { value:1.0 },
+        1.5,
+        Timeline.Easing.Linear.None
     );
 
 

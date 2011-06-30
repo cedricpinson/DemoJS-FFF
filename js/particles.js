@@ -956,7 +956,7 @@ var initParticles = function() {
                         0.2, 
                         0.2, 
                         0.5,
-                        0.3
+                        0.2
                       ];
     var modelsPos = [ [0.7,0.7,0.5],
                       [0.7,0.7,0.5],
@@ -964,7 +964,7 @@ var initParticles = function() {
                       [0.7,0.7,0.5],
                       [0.7,0.7,0.5],
                       [0.6,0.6,0.5],
-                      [0.6,0.6,0.5] 
+                      [0.7,0.7,0.4] 
                     ];
     var uniformsModelScale = [uniformScaleModel0, uniformScaleModel1 ];
     var uniformsModelPosition = [uniformPositionModel0, uniformPositionModel1 ];
@@ -1004,6 +1004,7 @@ var initParticles = function() {
 
 
 
+    var audioSound = document.getElementById('zik');
     var timeObjects = timeSetup(timeEvents);
     var firstTime = true;
     var UpdateCallback = function (physics, render) {
@@ -1013,7 +1014,8 @@ var initParticles = function() {
     };
     UpdateCallback.prototype = {
         update: function(node, nv) {
-            var t = nv.getFrameStamp().getSimulationTime();
+            var t = audioSound.currentTime; //nv.getFrameStamp().getSimulationTime();
+            t = 10.0 + 5.0*Math.cos(t);
             uniformSeed.get()[0] = Math.random();
             uniformSeed.dirty();
             uniformTime.set([t]);
@@ -1026,7 +1028,6 @@ var initParticles = function() {
             } else if (this.nbUpdate == 2) {
                 solidModel.set([0.0]);
             } else if (this.nbUpdate == 3) {
-                var audioSound = document.getElementById('zik');
                 audioSound.play();
                 var options = optionsURL();
                 var start = 0.0;
@@ -1087,10 +1088,13 @@ var initParticles = function() {
                     
                     osg.Matrix.makeRotate(Math.PI, 0,0,1, modelMatrix.get());
                     osg.Matrix.preMult(modelMatrix.get(), osg.Matrix.makeRotate(Math.PI/3.0, 1,0,0, []));
-                    if (false && timeObjects.ModelRotate.value > 0.1) {
-                        vec[timeObjects.ModelRotate.axis] = timeObjects.ModelRotate.axisDirection;
-                        osg.Matrix.makeRotate(t, vec[0],vec[1],vec[2], modelMatrix.get());
-                    }
+
+                    var ffModelMatrixRotate = osg.Matrix.makeRotate(timeObjects.EqualizerSceneDisplayFirefox.value * (-((6.0+audioSound.currentTime)*0.5)), 0, 0, 1, []);
+                    osg.Matrix.postMult(ffModelMatrixRotate, modelMatrix.get());
+
+                    var sff = timeObjects.EqualizerSceneDisplayFirefoxScale.value;
+                    var scaleff = osg.Matrix.makeScale(sff, sff ,sff, []);
+                    osg.Matrix.preMult(modelMatrix.get(), scaleff);
                     modelMatrix.dirty();
 
 
