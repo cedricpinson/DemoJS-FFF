@@ -55,8 +55,8 @@ var start2 = function() {
     }
 
     var audioSound=document.getElementById('zik');
-    audioSound.play();
-    audioSound.volume = 0;
+    //audioSound.play();
+    //audioSound.volume = 0;
 
 
     viewer.init();

@@ -1022,6 +1022,7 @@ var initParticles = function() {
     var firstTime = true;
     var FirstFrameCheckSoundBugHack = 0;
 
+    var options = optionsURL();
     var UpdateCallback = function (physics, render) {
         this.physics = physics;
         this.render = render;
@@ -1044,8 +1045,8 @@ var initParticles = function() {
             } else if (this.nbUpdate === 1) {
                 solidModel.set([0.0]);
             } else if (this.nbUpdate === 2) {
-                var options = optionsURL();
                 osg.log("current audio was " + audioSound.currentTime);
+                audioSound.play();
                 if (options['time'] !== undefined) {
                     audioSound.currentTime = options['time'];
                     this.previousAudioTime = options['time'];
@@ -1061,7 +1062,9 @@ var initParticles = function() {
 
                 var at = audioSound.currentTime;
                 var dtAudio = at - this.previousAudioTime;
-                osg.log("at " + at + " " + dtAudio);
+                if (options['logtime'] !== undefined) {
+                    osg.log("at " + at + " " + dtAudio);
+                }
 
                 this.previousAudioTime = at;
                 Timeline.getGlobalInstance().update(dtAudio);
