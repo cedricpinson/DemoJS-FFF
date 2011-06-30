@@ -1020,6 +1020,8 @@ var initParticles = function() {
     var audioSound = document.getElementById('zik');
     var timeObjects = timeSetup(timeEvents);
     var firstTime = true;
+    var FirstFrameCheckSoundBugHack = 0;
+
     var UpdateCallback = function (physics, render) {
         this.physics = physics;
         this.render = render;
@@ -1039,23 +1041,30 @@ var initParticles = function() {
                 //forceNewLife.set([1]);
                 solidModel.set([1.0]);
                 weightDistanceMap.set([10.0]);
-            } else if (this.nbUpdate === 2) {
+            } else if (this.nbUpdate === 1) {
                 solidModel.set([0.0]);
-            } else if (this.nbUpdate === 3) {
-                audioSound.play();
+            } else if (this.nbUpdate === 2) {
                 var options = optionsURL();
+                osg.log("current audio was " + audioSound.currentTime);
                 if (options['time'] !== undefined) {
                     audioSound.currentTime = options['time'];
+                    this.previousAudioTime = options['time'];
+                } else {
+                    audioSound.currentTime = 0;
+                    this.previousAudioTime = 0;
                 }
-                osg.log("start at " + audioSound.currentTime);
+                audioSound.volume = 1.0;
+                osg.log("start now at " + audioSound.currentTime);
 
             } else {
 
+
                 var at = audioSound.currentTime;
                 var dtAudio = at - this.previousAudioTime;
+                osg.log("at " + at + " " + dtAudio);
+
                 this.previousAudioTime = at;
                 Timeline.getGlobalInstance().update(dtAudio);
-                //osg.log("at " + at + " " + dtAudio);
 
                 weightVelocityField.set([0.0* (0.5 + 0.5*Math.cos(t*0.2))]);
                 weightDistanceMap.set([0.0 * (0.5 + 0.5*Math.cos(t*0.666666))]);
@@ -1147,6 +1156,7 @@ var initParticles = function() {
                         
                         weightDistanceMap.set([0.8]);
                         freeze.set([timeObjects.FreezeText.value]);
+                        //osg.log(audioSound.currentTime + " " + timeObjects.FreezeText.value);
                         rotationX.set([0.4]);
 
                         modelMatrix.dirty();

@@ -30,10 +30,10 @@ var start2 = function() {
         jQuery('#error').append(str + ' or you can still watch it on <a href="'+youtubeurl+'">youtube</a>');
         removeLoading();
     };
+
     var viewer = new osgViewer.Viewer(canvas, { antialias: true, 
                                                 preserveDrawingBuffer: false, 
                                                 alpha: true  }, webglerror );
-    
 
     var numTexturesAvailableInVertexShader = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
     osg.log("Nb Texture Unit in vertex shader " + numTexturesAvailableInVertexShader);
@@ -55,6 +55,8 @@ var start2 = function() {
     }
 
     var audioSound=document.getElementById('zik');
+    audioSound.play();
+    audioSound.volume = 0;
 
 
     viewer.init();
