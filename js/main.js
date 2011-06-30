@@ -91,18 +91,10 @@ var start2 = function() {
     //grp.addChild(createSceneText());
     viewer.getManipulator().computeHomePosition();
 
-  
 
-    var startMusic = 1.0;
-    var MainUpdate = function() { this.previousAudioTime = 0.0;};
+    var MainUpdate = function() { };
     MainUpdate.prototype = {
         update: function(node, nv) {
-            var t = audioSound.currentTime;
-            var dtAudio = t - this.previousAudioTime;
-            this.previousAudioTime = t;
-
-            Timeline.getGlobalInstance().update(dtAudio);
-
             node.traverse(nv);
         }
     };

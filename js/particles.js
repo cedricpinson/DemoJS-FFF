@@ -447,14 +447,27 @@ var initParticles = function() {
         texture.setMagFilter('NEAREST');
     };
 
+    // wait at list one second 
+    var loadingStart = new Date().getTime();
+    var durationLoading = 1.0;
     var loadingComplete = function() {
+        var funcToComplete = function() {
+            removeLoading();
+            setTimeout(function() {ready(); }, 500);
+        };
+
         loadingComplete.nbLoad--;
         if (loadingComplete.nbLoad < 0) {
             osg.log("loadingComplete called more than needed");
         }
         if (loadingComplete.nbLoad === 0) {
-            removeLoading();
-            setTimeout(function() {ready(); }, 200);
+            var finished = new Date().getTime();
+            var diff = (finished-loadingStart)/1000.0;
+            if ((diff-0.5) < durationLoading) {
+                setTimeout(funcToComplete, (durationLoading-diff)*1000.0);
+            } else {
+                funcToComplete();
+            }
         }
     };
     loadingComplete.nbLoad = 0;
@@ -1011,6 +1024,7 @@ var initParticles = function() {
         this.physics = physics;
         this.render = render;
         this.nbUpdate = 0;
+        this.previousAudioTime = 0.0;
     };
     UpdateCallback.prototype = {
         update: function(node, nv) {
@@ -1021,24 +1035,27 @@ var initParticles = function() {
             uniformTime.set([t]);
 
             // initialize spawn buffer at the beginning
-            if (this.nbUpdate == 0) {
+            if (this.nbUpdate === 0) {
                 //forceNewLife.set([1]);
                 solidModel.set([1.0]);
                 weightDistanceMap.set([10.0]);
-            } else if (this.nbUpdate == 2) {
+            } else if (this.nbUpdate === 2) {
                 solidModel.set([0.0]);
-            } else if (this.nbUpdate == 3) {
+            } else if (this.nbUpdate === 3) {
                 audioSound.play();
                 var options = optionsURL();
-                var start = 0.0;
                 if (options['time'] !== undefined) {
-                    start = options['time'];
+                    audioSound.currentTime = options['time'];
                 }
-                audioSound.currentTime = start;
-                //audioSound.currentTime = 28.0;
-                //audioSound.currentTime = 11.0;
+                osg.log("start at " + audioSound.currentTime);
 
             } else {
+
+                var at = audioSound.currentTime;
+                var dtAudio = at - this.previousAudioTime;
+                this.previousAudioTime = at;
+                Timeline.getGlobalInstance().update(dtAudio);
+                //osg.log("at " + at + " " + dtAudio);
 
                 weightVelocityField.set([0.0* (0.5 + 0.5*Math.cos(t*0.2))]);
                 weightDistanceMap.set([0.0 * (0.5 + 0.5*Math.cos(t*0.666666))]);
@@ -1098,38 +1115,42 @@ var initParticles = function() {
                     modelMatrix.dirty();
 
 
-                } else if (timeObjects.IntroScene.value > 0.5) {
-                    uniformIntroTextScene.get()[0] = 1.0; uniformIntroTextScene.dirty();
-                    uniformWindIntro.get()[0] = timeObjects.WindIntro.value; uniformWindIntro.dirty();
-                    if (timeObjects.Text4.value > 0.0) {
-                        this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureFR, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
-                        var vec = [0,0,0];
-                        vec[timeObjects.Text4.axis] = timeObjects.Text4.axisDirection;
-                        osg.Matrix.makeRotate((1.0-timeObjects.Text4.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
-                        //osg.log("text4 " + t);
-                    } else if (timeObjects.Text3.value > 0.0) {
-                        this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureSY, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
-                        var vec = [0,0,0];
-                        vec[timeObjects.Text3.axis] = timeObjects.Text3.axisDirection;
-                        osg.Matrix.makeRotate((1.0-timeObjects.Text3.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
-                    } else if (timeObjects.Text2.value > 0.0) {
-                        this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureBy, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
-                        var vec = [0,0,0];
-                        vec[timeObjects.Text2.axis] = timeObjects.Text2.axisDirection;
-                        osg.Matrix.makeRotate((1.0-timeObjects.Text2.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
-                    } else if (timeObjects.Text1.value > 0.0) {
-                        this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureTitle, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+                } else  {
+                    //osg.log(audioSound.currentTime + " " +);
 
-                        var vec = [0,0,0];
-                        vec[timeObjects.Text1.axis] = timeObjects.Text1.axisDirection;
-                        osg.Matrix.makeRotate((1.0-timeObjects.Text1.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+                    if (timeObjects.IntroScene.value > 0.5) {
+                        uniformIntroTextScene.get()[0] = 1.0; uniformIntroTextScene.dirty();
+                        uniformWindIntro.get()[0] = timeObjects.WindIntro.value; uniformWindIntro.dirty();
+                        if (timeObjects.Text4.value > 0.0) {
+                            this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureFR, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+                            var vec = [0,0,0];
+                            vec[timeObjects.Text4.axis] = timeObjects.Text4.axisDirection;
+                            osg.Matrix.makeRotate((1.0-timeObjects.Text4.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+                        } else if (timeObjects.Text3.value > 0.0) {
+                            this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureSY, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+                            var vec = [0,0,0];
+                            vec[timeObjects.Text3.axis] = timeObjects.Text3.axisDirection;
+                            osg.Matrix.makeRotate((1.0-timeObjects.Text3.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+                        } else if (timeObjects.Text2.value > 0.0) {
+                            this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureBy, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+                            var vec = [0,0,0];
+                            vec[timeObjects.Text2.axis] = timeObjects.Text2.axisDirection;
+                            osg.Matrix.makeRotate((1.0-timeObjects.Text2.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+                        } else if (timeObjects.Text1.value > 0.0) {
+                            this.physics.root.getOrCreateStateSet().setTextureAttributeAndMode(6, textureTitle, osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+
+                            var vec = [0,0,0];
+                            vec[timeObjects.Text1.axis] = timeObjects.Text1.axisDirection;
+
+                            osg.Matrix.makeRotate((1.0-timeObjects.Text1.value)*0.02, vec[0],vec[1],vec[2], modelMatrix.get());
+                        }
+                        
+                        weightDistanceMap.set([0.8]);
+                        freeze.set([timeObjects.FreezeText.value]);
+                        rotationX.set([0.4]);
+
+                        modelMatrix.dirty();
                     }
-
-                    weightDistanceMap.set([0.8]);
-                    freeze.set([timeObjects.FreezeText.value]);
-                    rotationX.set([0.4]);
-
-                    modelMatrix.dirty();
                 }
             }
 

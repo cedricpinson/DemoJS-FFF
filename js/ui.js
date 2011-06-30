@@ -2,7 +2,10 @@ var removeLoading;
 var showCredits;
 $(document).ready(function() {
     removeLoading = function() {
-        $('body').removeClass('loading');
+        $('#loading').fadeOut(400);
+        setTimeout(function() {
+            $('body').removeClass('loading');
+        }, 500);
     };
     
     showCredits = function() {

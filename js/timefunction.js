@@ -135,10 +135,9 @@ var timeSetup = function(eventData) {
     };
 
 
-
     dictObject.FreezeText = { value: 0.0};
     anim("FreezeText", dictObject.FreezeText).to( 
-        0.018,
+        0.021,
         { value:1.0 },
         0.0001,
         Timeline.Easing.Linear.EaseNone
@@ -224,6 +223,30 @@ var timeSetup = function(eventData) {
         { value: windEndValue},
         windDurationRestore
     );
+
+
+    dictObject.StateText = { value: 0.0};
+    anim("StateText",dictObject.StateText).to(
+        0.02,
+        { value: 1.0},
+        0.00001
+    );
+    anim("StateText",dictObject.StateText).to(
+        3.75,
+        { value: 2.0},
+        0.00001
+    );
+    anim("StateText",dictObject.StateText).to(
+        7.40,
+        { value: 3.0},
+        0.00001
+    );
+    anim("StateText",dictObject.StateText).to(
+        11.1,
+        { value: 4.0},
+        0.00001
+    );
+        
 
     dictObject.Text1 = { value: 0.0};
     anim("Text1",dictObject.Text1).to(
