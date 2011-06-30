@@ -47,6 +47,13 @@ var start2 = function() {
         return;
     }
 
+    var cred = window.location.href.indexOf('#credits');
+    if (cred >=0) {
+        removeLoading();
+        showCredits();
+        return;
+    }
+
     var audioSound=document.getElementById('zik');
 
 
