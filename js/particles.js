@@ -199,7 +199,7 @@ var initParticles = function() {
             "vec3 getSpawnPosition2(float offset) {",
             "   vec3 size = vec3(0.9, 0.0,  0.5);",
             "   vec3 corner = worldCenter - size*0.5;",
-            "   vec3 pos = vec3(size.x * FragTexCoord0.x, 0.0*(-offset + 0.1 + 0.1*cos(4.0*FragTexCoord0.x)), size.z*FragTexCoord0.y + 0.05*cos(4.0*FragTexCoord0.x))+corner;",
+            "   vec3 pos = vec3(size.x * FragTexCoord0.x*(1.0 + 5.0*offset), 0.0*(-offset + 0.1 + 0.1*cos(4.0*FragTexCoord0.x)), size.z*FragTexCoord0.y + 0.05*cos(4.0*FragTexCoord0.x))+corner;",
             "   material = 0.0;",
             "   return pos;",
             "}",
