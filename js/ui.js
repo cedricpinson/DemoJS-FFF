@@ -4,6 +4,9 @@ $(document).ready(function() {
     };
     
     var showCredits = function() {
-        $('#credits').fadeIn(500);
+        $('#View').fadeOut(500);
+        $('#credits').fadeIn(1000);
     };
+    
+   $(".email").defuscate_mailto();
 });
