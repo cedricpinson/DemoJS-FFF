@@ -454,7 +454,7 @@ var initParticles = function() {
         }
         if (loadingComplete.nbLoad === 0) {
             removeLoading();
-            ready();
+            setTimeout(function() {ready(); }, 200);
         }
     };
     loadingComplete.nbLoad = 0;
