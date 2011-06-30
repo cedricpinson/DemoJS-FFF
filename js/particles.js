@@ -56,6 +56,8 @@ var initParticles = function() {
             "uniform sampler2D DistanceMap;",
             "uniform sampler2D model0;",
             "uniform sampler2D model1;",
+            "uniform float scaleModel0;",
+            "uniform float scaleModel1;",
 
             "uniform int freeze;",
             "uniform int forceNewLife;",
@@ -141,10 +143,9 @@ var initParticles = function() {
             "  vec2 uvz = uvx + vec2(2.0/2048.0, 0.0);",
             "  vec3 centerPos = getModel0(uvx, uvy, uvz)-worldCenter;",
             "  vec3 centerPos2 = getModel1(uvx, uvy, uvz)-worldCenter;",
-            "  float scale = 0.2;",
-            "  vec3 finalPos = modelPosition + (modelMatrix * (vec4(centerPos* scale, 1.0))).xyz;",
-            "  vec3 finalPos2 = modelPosition + (modelMatrix * (vec4(centerPos2* scale, 1.0))).xyz;",
-            "  vec3 rrr = finalPos*(1.0-modelRatio) + modelRatio*finalPos2;",
+            "  vec3 finalPos = (modelMatrix * (vec4(centerPos* scaleModel0, 1.0))).xyz;",
+            "  vec3 finalPos2 = (modelMatrix * (vec4(centerPos2* scaleModel1, 1.0))).xyz;",
+            "  vec3 rrr = modelPosition + finalPos*(1.0-modelRatio) + modelRatio*finalPos2;",
             "  return rrr;",
             "}",
 
@@ -600,6 +601,7 @@ var initParticles = function() {
     loadModel3();
     loadModel4();
     loadModel5();
+    //loadModel5();
 
 
     var textureIndex = 0;
@@ -643,6 +645,9 @@ var initParticles = function() {
 
     var uniformModelRatio = osg.Uniform.createFloat1(0.0, 'modelRatio');
     var uniformShowModel = osg.Uniform.createFloat1(0.0, 'showModel');
+
+    var uniformScaleModel1 =osg.Uniform.createFloat1(1.0, 'scaleModel1');
+    var uniformScaleModel0 =osg.Uniform.createFloat1(1.0, 'scaleModel0');
 
     var Physics = function(cameras, textures) {
         this.cameras = cameras;
@@ -748,6 +753,8 @@ var initParticles = function() {
 
             stateset.addUniform(model0);
             stateset.addUniform(model1);
+            stateset.addUniform(uniformScaleModel0);
+            stateset.addUniform(uniformScaleModel1);
 
             var idx;
             idx = (index + 1)%3;
@@ -925,12 +932,18 @@ var initParticles = function() {
     render.setDisplayTexture(physics.getDisplayTexture());
 
     var models = [ textureModel0, textureModel1, textureModel2, textureModel3, textureModel4, textureModel5 ];
+    var modelsScale = [ 0.2, 0.2, 0.2, 0.2, 0.2 , 0.5];
+    var uniformsModelScale = [uniformScaleModel0, uniformScaleModel1 ];
+    var uniformsModelScale = [uniformScaleModel0, uniformScaleModel1 ];
     
     var modelIndex = -1;
+    
     changeModel = function() {
         var st = physics.root.getOrCreateStateSet();
         if (modelIndex === -1) {
             st.setTextureAttributeAndMode(7, models[0], osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
+            uniformScaleModel0.get()[0] = modelsScale[0]; uniformScaleModel0.dirty();
+            
             osg.log("First model");
             modelIndex++;
         } else {
@@ -939,6 +952,10 @@ var initParticles = function() {
             modelIndex++;
             var nextIndex = (modelIndex)%2;
             var nextModel = modelIndex;
+
+            uniformsModelScale[previousIndex].get()[0] = modelsScale[previousModel]; uniformsModelScale[previousIndex].dirty();
+            uniformsModelScale[nextIndex].get()[0] = modelsScale[nextModel]; uniformsModelScale[nextIndex].dirty();
+
             uniformModelRatio.get()[0] = nextIndex; uniformModelRatio.dirty();
 
             st.setTextureAttributeAndMode(7+previousIndex, models[previousModel], osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
