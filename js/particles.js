@@ -1031,6 +1031,7 @@ var initParticles = function() {
     };
     UpdateCallback.prototype = {
         update: function(node, nv) {
+
             var t = audioSound.currentTime; //nv.getFrameStamp().getSimulationTime();
             t = 10.0 + 5.0*Math.cos(t);
             uniformSeed.get()[0] = Math.random();
@@ -1044,30 +1045,45 @@ var initParticles = function() {
                 weightDistanceMap.set([10.0]);
             } else if (this.nbUpdate === 1) {
                 solidModel.set([0.0]);
-            } else if (this.nbUpdate === 2) {
-                osg.log("current audio was " + audioSound.currentTime);
-                audioSound.play();
-                if (options['time'] !== undefined) {
-                    audioSound.currentTime = options['time'];
-                    this.previousAudioTime = options['time'];
-                } else {
-                    audioSound.currentTime = 0;
-                    this.previousAudioTime = 0;
-                }
-                audioSound.volume = 1.0;
-                osg.log("start now at " + audioSound.currentTime);
-
             } else {
+                if (this.nbUpdate === 3) {
 
+                    osg.log("current audio was " + audioSound.currentTime);
+                    audioSound.play();
 
-                var at = audioSound.currentTime;
-                var dtAudio = at - this.previousAudioTime;
-                if (options['logtime'] !== undefined) {
-                    osg.log("at " + at + " " + dtAudio);
+                    this.fakeTimerStart = nv.getFrameStamp().getSimulationTime();
+                    this.fakeTimer = 0.0;
+
+                    if (options['time'] !== undefined) {
+                        audioSound.currentTime = options['time'];
+                        this.previousAudioTime = options['time'];
+                        this.fakeTimer += options['time'];
+                    } else {
+                        audioSound.currentTime = 0;
+                        this.previousAudioTime = 0;
+                    }
+
+                    //this.previousAudioTime = 0;
+
+                    audioSound.volume = 1.0;
+                    osg.log("start now at " + audioSound.currentTime);
                 }
 
-                this.previousAudioTime = at;
-                Timeline.getGlobalInstance().update(dtAudio);
+                var at = 0.0;
+                var t = 0.0;
+                if (this.nbUpdate > 2) {
+                    at = nv.getFrameStamp().getSimulationTime()-this.fakeTimerStart;
+                    t = at;
+
+                    var dtAudio = at - this.previousAudioTime;
+                    if (options['logtime'] !== undefined) {
+                        osg.log("at " + at + " " + dtAudio);
+                    }
+
+                    this.previousAudioTime = at;
+                    Timeline.getGlobalInstance().update(dtAudio);
+                }
+                t = 10.0 + 5.0*Math.cos(t);
 
                 weightVelocityField.set([0.0* (0.5 + 0.5*Math.cos(t*0.2))]);
                 weightDistanceMap.set([0.0 * (0.5 + 0.5*Math.cos(t*0.666666))]);
