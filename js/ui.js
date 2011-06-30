@@ -19,6 +19,8 @@ $(document).ready(function() {
    
    $('#skip').click(function() {
        showCredits();
+       var audioSound=document.getElementById('zik');
+       audioSound.pause();
    });
     
    $(".email").defuscate_mailto();
