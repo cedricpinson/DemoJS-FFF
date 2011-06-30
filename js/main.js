@@ -1,6 +1,13 @@
 window.addEventListener("load", function() { start2(); }, true );
 
 var start2 = function() {
+    var webglBrowser = '' +
+        'This page requires a browser that supports WebGL.<br/>' +
+        '<a href="http://get.webgl.org">Click here to upgrade your browser</a>';
+
+    var otherProblem = '' +
+        "It doesn't appear your computer can support WebGL.<br/>" +
+        '<a href="http://get.webgl.org">Click here for more information</a>';
 
     var w,h;
     if (window.top == window ) {
@@ -14,17 +21,29 @@ var start2 = function() {
     var canvas = document.getElementById("3DView");
     canvas.width = w;
     canvas.height = h;
+    var youtubeurl = "youtube";
+    var webglerror = function (msg) {
+        var str = window.WebGLRenderingContext ?
+            webglBrowser :
+            otherProblem;
+
+        jQuery('#error').append(str + ' or you can still watch it on <a href="'+youtubeurl+'">youtube</a>');
+        removeLoading();
+    };
     var viewer = new osgViewer.Viewer(canvas, { antialias: true, 
                                                 preserveDrawingBuffer: false, 
-                                                alpha: true  } );
+                                                alpha: true  }, webglerror );
     
 
     var numTexturesAvailableInVertexShader = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
     osg.log("Nb Texture Unit in vertex shader " + numTexturesAvailableInVertexShader);
     if (numTexturesAvailableInVertexShader < 9) {
-        var msg = "This demo requires 9 texture unit on vertex shader and you have " + numTexturesAvailableInVertexShader;
+        var msg = "Requires 9 texture unit on vertex shader (" + numTexturesAvailableInVertexShader+ ")";
         osg.log(msg);
-        $('#loading').append("<div id=erreur> " + msg + "<br>This problem is often because of Angle or with very low graphics cards.<br>You can fix it following instructions:<br>firefox: go to about:config and set webgl.prefer-native-gl to true.<br>chrome: run chrome with the --use-gl=desktop command-line argument.</div>");
+        //jQuery('#loading').append('<div id="erreur"> ' + </div>');
+
+        jQuery('#error2').append(msg + '<br>Angle or low gpu can produce it, fix it:<br><br>firefox: go to about:config and set webgl.prefer-native-gl to true.<br>chrome: run chrome with the --use-gl=desktop command-line argument.<br><br>You can watch it on <a href="'+youtubeurl+'">youtube</a>');
+        removeLoading();
         return;
     }
 
