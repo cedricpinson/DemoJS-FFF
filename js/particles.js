@@ -979,7 +979,6 @@ var initParticles = function() {
             uniformScaleModel0.get()[0] = modelsScale[0]; uniformScaleModel0.dirty();
             uniformPositionModel0.set(modelsPos[0]);
             
-            osg.log("First model");
             modelIndex++;
         } else {
             var previousIndex = (modelIndex)%2;
@@ -999,7 +998,7 @@ var initParticles = function() {
 
             st.setTextureAttributeAndMode(7+previousIndex, models[previousModel], osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
             st.setTextureAttributeAndMode(7+nextIndex, models[nextModel], osg.StateAttribute.ON | osg.StateAttribute.OVERRIDE);
-            osg.log("change model from " + previousIndex + "(" + previousModel + ")  to " + nextIndex + "("+nextModel+")");
+            //osg.log("change model from " + previousIndex + "(" + previousModel + ")  to " + nextIndex + "("+nextModel+")");
         }
     };
 
