@@ -8,11 +8,17 @@ $(document).ready(function() {
     showCredits = function() {
         $('#View').fadeOut(500);
         $('#credits').fadeIn(1000);
+        $('#skip').hide();
+        $('#replay').show();
 
         setTimeout( function () { 
             $('#View').remove() 
         } , 600);
     };
+   
+   $('#skip').click(function() {
+       showCredits();
+   });
     
    $(".email").defuscate_mailto();
 });
