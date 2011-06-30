@@ -345,19 +345,19 @@ var initParticles = function() {
             "          //life = 0.6;",
             "          material = showModel;",
             "          distance = 1.0;",
-            "          wind = 2.857142857;",
+            "          wind = 0.1;",
             "          vec3 rrr = getModel(modelRatio);",
             "          vec3 vec = rrr-currentPosition;",
             "          distance = (0.5-length(vec))/0.5;",
             "          distance = max(distance, 1.0);",
-            "          targetVec += vec*10.0;",
+            "          targetVec += vec*5.0;",
             "          targetVec += 3.0*getVelocityField(currentPosition)*weightVelocityField;",
             "          if (rotationX >= 0.01) {",
             "             targetVec += getRotationalVelocityField(currentPosition, vec3(1.0, 0.0, 0.0), rotationX);",
             "          }",
-            "          targetVec *= 0.0;",
-            "          velocity *= 0.0;",
-            "          currentPosition = rrr;",
+            "          //targetVec *= 0.0;",
+            "          //velocity *= 0.0;",
+            "          //currentPosition = rrr;",
             "       }",
             "    }",
             "",
@@ -756,6 +756,9 @@ var initParticles = function() {
             stateset.addUniform(uniformScaleModel0);
             stateset.addUniform(uniformScaleModel1);
 
+            stateset.addUniform(uniformPositionModel0);
+            stateset.addUniform(uniformPositionModel1);
+
             var idx;
             idx = (index + 1)%3;
             stateset.setTextureAttributeAndMode(0, physicsTextures[idx][0]);
@@ -801,7 +804,6 @@ var initParticles = function() {
             this.stateSet.setTextureAttributeAndMode(1, textureArray[1]);
             this.stateSet.setTextureAttributeAndMode(2, textureArray[2]);
             this.stateSet.setTextureAttributeAndMode(3, texturePoint);
-            
         }
     };
 
@@ -934,7 +936,7 @@ var initParticles = function() {
     var models = [ textureModel0, textureModel1, textureModel2, textureModel3, textureModel4, textureModel5 ];
     var modelsScale = [ 0.2, 0.2, 0.2, 0.2, 0.2 , 0.5];
     var uniformsModelScale = [uniformScaleModel0, uniformScaleModel1 ];
-    var uniformsModelScale = [uniformScaleModel0, uniformScaleModel1 ];
+    var uniformsModelPosition = [uniformPositionModel0, uniformPositionModel1 ];
     
     var modelIndex = -1;
     
@@ -1045,7 +1047,7 @@ var initParticles = function() {
 
                     var vec = [0,0,0];
                     rotationX.set([0.0]);
-                    weightVelocityField.set([0.0* (0.5 + 0.5*Math.cos(t*0.2))]);
+                    weightVelocityField.set([0.3* (0.5 + 0.5*Math.cos(t*0.2))]);
                     osg.Matrix.makeRotate(Math.PI, 0,0,1, modelMatrix.get());
                     osg.Matrix.preMult(modelMatrix.get(), osg.Matrix.makeRotate(Math.PI/3.0, 1,0,0, []));
                     if (false && timeObjects.ModelRotate.value > 0.1) {
