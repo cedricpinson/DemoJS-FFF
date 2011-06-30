@@ -423,9 +423,10 @@ var timeSetup = function(eventData) {
 
     dictObject.EqualizerSceneFinish = { value: 0.0};
     anim("EqualizerSceneFinish",dictObject.EqualizerSceneFinish).to(
-        53.606,
+        55.606,
         { value:1.0 },
-        1.5,
+        function() { showCredits(); },
+        0.00001,
         Timeline.Easing.Linear.None
     );
 

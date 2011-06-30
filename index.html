@@ -1,31 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <style>
-    body {
-    overflow:hidden;
-    margin:0;
-    padding:0;
-    background:white;
-    }
-
-    #View {
-    position: absolute;
-    }
-
-body:after { 
--moz-box-shadow: inset 0 0 10em #666;  
- -webkit-box-shadow: inset 0 0 10em #666;   
- box-shadow: inset 0 0 10em #666;
- position: absolute;
- top: 0;
- left: 0;
- width: 100%;
- height: 100%;
- z-index: 2;
- content: "";
-}
-  </style>
+  <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700&subset=latin&v2' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="style.css">
+  
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
   <script src="js/osg-debug.js"></script>
   <script src="js/main2.js"></script>
   <script src="js/particles.js"></script>
@@ -34,10 +13,101 @@ body:after {
   <script src="js/timefunction.js"></script>
   <script src="js/camera.js"></script>
   <script src="js/path.js"></script>
+  <script src="js/defuscate.js"></script>
+  <script src="js/ui.js"></script>
 
 </head>
-<body>
+<body class="loading">
+    <div id="loading">
+        <span>Loading, please wait...</span>
+        <img src="spinner.gif" alt="">
+    </div>
   <div id="View"> <canvas id="3DView"></canvas> </div>
   <audio id="zik" src="zik.ogg" preload="auto"></audio>
+  <div id="credits">
+       <h1>Credits</h1>
+       <ul id="main">
+           <li>
+               <span class="role">code</span>
+               <span class="name"><strong>Tri Grou</strong> aka <strong>Cedric Pinson</strong></span>
+               <ul class="links">
+                   <li><a href="http://plopbyte.net/portfolio">portfolio</a></li>
+                   <li><a href="http://twitter.com/#!/trigrou">twitter</a></li>
+                   <li><a class="email" href="mailto:cedric.pinson(mettre un @ ici)plopbyte.com">email</a></li>
+               </ul>
+           </li>
+           <li>
+               <span class="role">gfx</span>
+               <span class="name"><strong>mestaty</strong> aka <strong>Sylvain Bernard</strong></span>
+               <ul class="links">
+                   <li><a href="http://www.frequency.fr">group FRequency</a></li>
+                   <li><a href="http://16h42.blogspot.com">portfolio</a></li>
+                   <li><a class="email" href="mailto:mestaty(mettre un @ ici)gmail.com">email</a></li>
+               </ul>
+           </li>
+           <li>
+               <span class="role">music</span>
+               <span class="name"><strong>ulrick</strong> aka <strong>Evens Salies</strong></span>
+               <ul class="links">
+                   <li><a href="http://www.frequency.fr">group FRequency</a></li>
+                   <li><a href="http://soundcloud.com/ulrick">portfolio</a></li>
+                   <li><a href="http://www.facebook.com/ulrick.aka.Evens.SALIES">facebook</a></li>
+                   <li><a class="email" href="mailto:ulrick(mettre un @ ici)frequency.fr">email</a></li>
+               </ul>
+           </li>
+           <li>
+               <span class="role">music events manager</span>
+               <span class="name"><strong>@lx</strong> aka <strong>Alexandre Mutel</strong></span>
+               <ul class="links">
+                   <li><a href="http://www.frequency.fr">group FRequency</a></li>
+                   <li><a href="http://code4k.blogspot.com">portfolio</a></li>
+                   <li><a href="http://twitter.com/#!/xoofx">twitter</a></li>
+                   <li><a class="email" href="mailto:alexandre_mutel(mettre un @ ici)yahoo.fr">email</a></li>
+               </ul>
+           </li>
+           <li>
+               <span class="role">vocoded speech</span>
+               <span class="name"><strong>xtrium</strong> aka <strong>Charles Bulckaen</strong></span>
+               <ul class="links">
+                   <li><a href="http://www.frequency.fr">group FRequency</a></li>
+                   <li><a href="http://xtrium.obstrium.net">portfolio</a></li>
+                   <li><a href="http://soundcloud.com/xtrium">soundcloud</a></li>
+                   <li><a class="email" href="mailto:xtrium(mettre un @ ici)frequency.fr">email</a></li>
+               </ul>
+           </li>
+       </ul>
+       <div id="greetings">
+           <h2>greetings</h2>
+           <ul>
+               <li>adinpsz,</li>
+               <li>alcatraz,</li>
+               <li>asd,</li>
+               <li>ate bit,</li>
+               <li>cncd,</li>
+               <li>cocoon,</li>
+               <li>conspiracy,</li>
+               <li>ctrl-alt-test,</li>
+               <li>equinox,</li>
+               <li>fairlight,</li>
+               <li>farbrausch,</li>
+               <li>haujobb,</li>
+               <li>lft,</li>
+               <li>loonies,</li>
+               <li>mandarine,</li>
+               <li>mfx,</li>
+               <li>orange,</li>
+               <li>popsy team,</li>
+               <li>portal process,</li>
+               <li>quite,</li>
+               <li>razor 1911,</li>
+               <li>rgba,</li>
+               <li>tbc</li>
+           </ul>
+       </div>
+       <div id="sponsor">
+           <h2>our sponsor</h2>
+           <a href="http://www.mozilla.org">mozilla / firefox</a>
+       </div>
+   </div>
 </body>
 </html>

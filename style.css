@@ -1,0 +1,199 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+#View {
+position: absolute;
+}
+
+html,body {
+    height:100%;
+    overflow:hidden;
+}
+
+body {
+    background:-moz-radial-gradient(farthest-side, rgba(0,0,0,0) 90%, rgba(0,0,0,0.1) 150%) #fff;
+    background:-webkit-gradient(radial, center center, 500, center center, 1400, from(rgba(0,0,0,0)), to(rgba(0,0,0,0.2))) #fff;
+}
+
+#loading {
+    position:absolute;
+    top:50%;
+    left:50%;
+    margin-top:-50px;
+    margin-left:-200px;
+    display:none;
+    font-family: 'Droid Sans', arial, sans-serif;
+    color:#bbb;
+    font-size:1.5em;
+    text-align:center;
+    width:400px;
+    height:100px;
+    text-shadow:0px 1px 0px #eee;
+    z-index:9999;
+}
+
+#loading span {
+    display:block;
+    margin:0 0 30px 0;
+}
+
+.loading #loading {
+    display:block;
+}
+
+#credits {
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:900px;
+    height:520px;
+    margin:-260px 0 0 -450px;
+    font-family:'Droid Sans', arial, sans-serif;
+    display:none;
+}
+
+#credits h1 {
+    font-weight:normal;
+    color:#aaa;
+    font-size:3em;
+    margin-bottom:30px;
+}
+
+#main {
+    float:left;
+    width:50%;
+    border-right:1px solid #ccc;
+}
+
+#main li {
+    margin-bottom:30px;
+}
+
+#main li:last-child, #main li:last-child ul li {
+    margin-bottom:0;
+}
+
+.role {
+    font-size:1em;
+    color:#aaa;
+    display:block;
+    clear:left;
+}
+
+.name {
+    font-size:1.25em;
+    color:#aaa;
+    display:block;
+    margin:8px 0;
+}
+
+.name strong {
+    color:#000;
+}
+
+.links {
+    margin-left:-5px;
+}
+
+.links li {
+    float:left;
+    color:#000;
+    font-size:0.75em;
+    padding:0 5px;
+}
+
+.links li a {
+    text-decoration:none;
+    color:#000;
+}
+
+.links li a:hover {
+    color:#fa7d00;
+}
+
+#greetings {
+    float:right;
+    width:40%;
+}
+
+#greetings h2, #sponsor h2 {
+    font-size:1.5em;
+    color:#aaa;
+    margin:0 0 20px 0;
+}
+
+#greetings ul {
+    margin-left:-4px;
+}
+
+#greetings ul li {
+    float:left;
+    line-height:150%;
+    font-size:0.875em;
+    padding-left:4px;
+}
+
+#greetings ul li a {
+    color:#000;
+    text-decoration:none;
+}
+
+#greetings ul li a:hover {
+    color:#fa7d00;
+}
+
+#sponsor {
+    margin:30px 0 0 0;
+    float:right;
+    width:40%;
+}
+
+#sponsor a {
+    color:#000;
+    text-decoration:none;
+}
+
+#sponsor a:hover {
+    color:#fa7d00;
+}

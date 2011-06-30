@@ -453,6 +453,7 @@ var initParticles = function() {
             osg.log("loadingComplete called more than needed");
         }
         if (loadingComplete.nbLoad === 0) {
+            removeLoading();
             ready();
         }
     };
@@ -1131,8 +1132,6 @@ var initParticles = function() {
 
                     modelMatrix.dirty();
                 }
-
-
             }
 
             this.physics.switchBuffer();
