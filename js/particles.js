@@ -951,7 +951,7 @@ var initParticles = function() {
     render.setDisplayTexture(physics.getDisplayTexture());
 
     var models = [ textureModel0, textureModel1, textureModel2, textureModel3, textureModel4, textureModel5, textureModel6 ];
-    var modelsScale = [ 0.2, 
+    var modelsScale = [ 0.4, 
                         0.2, 
                         0.2, 
                         0.2, 
@@ -959,7 +959,7 @@ var initParticles = function() {
                         0.5,
                         0.2
                       ];
-    var modelsPos = [ [0.7,0.7,0.5],
+    var modelsPos = [ [0.55,0.55,0.5],
                       [0.7,0.7,0.5],
                       [0.7,0.7,0.5],
                       [0.7,0.7,0.5],

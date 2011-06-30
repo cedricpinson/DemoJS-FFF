@@ -1,5 +1,5 @@
 window.addEventListener("load", function() { start2(); }, true );
-
+var Viewer;
 var start2 = function() {
     var webglBrowser = '' +
         'This page requires a browser that supports WebGL.<br/>' +
@@ -58,6 +58,7 @@ var start2 = function() {
 
 
     viewer.init();
+    Viewer = viewer;
     viewer.setupManipulator();
 
     var keys = initializeCameraPath(cameraPath);

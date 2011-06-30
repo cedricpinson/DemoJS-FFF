@@ -10,6 +10,7 @@ $(document).ready(function() {
         $('#credits').fadeIn(1000);
 
         setTimeout( function () { 
+            Viewer.setDone();
             $('#View').remove() 
         } , 600);
     };
