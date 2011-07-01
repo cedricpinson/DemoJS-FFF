@@ -211,7 +211,7 @@ body {
     color:#fa7d00;
 }
 
-#greetings, #replay #tweet{
+#greetings {
     float:right;
     width:40%;
 }
@@ -279,25 +279,18 @@ body {
     top:2px;
 }
 
-
 #tweet {
-    position:absolute;
-    bottom:25px;
     display:none;
-    right:135px;
-    font-family:'Droid Sans', arial, sans-serif;
-    font-size:0.75em;
 }
 
-#tweet a {
-    color:inherit;
-    text-decoration:none;
-}
-
-#tweet img {
-    margin:0 8px 0 0;
-    position:relative;
-    top:3px;
+#tweetButton {
+    display:block;
+    width:21px;
+    height:16px;
+    background:url('twitter.png') no-repeat;
+    position:absolute;
+    bottom:29px;
+    right:137px;
 }
 
 #skip {
