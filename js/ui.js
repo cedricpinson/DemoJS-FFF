@@ -13,9 +13,12 @@ $(document).ready(function() {
         $('#credits').fadeIn(1000);
         $('#skip').hide();
         $('#replay').show();
+        $('#tweet').show();
 
         setTimeout( function () { 
-            Viewer.setDone();
+            if (Viewer !== undefined) {
+                Viewer.setDone();
+            }
             $('#View').remove() 
         } , 600);
     };

@@ -21,7 +21,7 @@ var start2 = function() {
     var canvas = document.getElementById("3DView");
     canvas.width = w;
     canvas.height = h;
-    var youtubeurl = "youtube";
+    var youtubeurl = "http://www.youtube.com/watch?v=DHup1JfEsXo";
     var webglerror = function (msg) {
         var str = window.WebGLRenderingContext ?
             webglBrowser :
