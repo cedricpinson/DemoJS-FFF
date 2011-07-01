@@ -282,11 +282,9 @@ body {
 
 #tweet {
     position:absolute;
-    bottom:30px;
+    bottom:25px;
     display:none;
-    right:120px;
-    width:115px;
-    text-align:right;
+    right:135px;
     font-family:'Droid Sans', arial, sans-serif;
     font-size:0.75em;
 }
