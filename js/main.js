@@ -42,8 +42,8 @@ var start2 = function() {
         osg.log(msg);
         //jQuery('#loading').append('<div id="erreur"> ' + </div>');
 
-        jQuery('#error2').append(msg + '<br>Angle or low gpu can produce it, fix it:<br><br>firefox: go to about:config and set webgl.prefer-native-gl to true.<br>chrome: run chrome with the --use-gl=desktop command-line argument.<br><br>You can watch it on <a href="'+youtubeurl+'">youtube</a>');
         removeLoading();
+        jQuery('#error2').append(msg + '<br>Angle or low gpu can produce it, fix it:<br><br>firefox: go to about:config and set webgl.prefer-native-gl to true.<br>chrome: run chrome with the --use-gl=desktop command-line argument.<br><br>You can watch it on <a href="'+youtubeurl+'">youtube</a>');
         return;
     }
 
