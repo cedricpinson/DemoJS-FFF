@@ -1,6 +1,11 @@
+demo: http://plopbyte.com/demojs-fff/
+credits: http://plopbyte.com/demojs-fff/#credits
+
 tool used:
 gnuplot
 mathgl/udav
 octave
-https://github.com/cedricpinson/DistanceMapGenerator
-timeline.js
+distancemapgenerator https://github.com/cedricpinson/DistanceMapGenerator
+timeline.js https://github.com/cedricpinson/timeline.js
+osgjs https://github.com/cedricpinson/osgjs
+
