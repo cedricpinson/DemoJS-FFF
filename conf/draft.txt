@@ -1,0 +1,11 @@
+intro invit
+particles previous work (url particles firefox)
+10 days
+
+
+
+Particles ( example url fairlight )
+brief explanation how doing particles on gpu
+use 3 buffer to have 24 bits precision / dessin
+
+
