@@ -1,8 +1,0 @@
-new ex 10 10 10
-new ey 10 10 10
-new ez 10 10 10
-fill ex 'sin(x)'
-fill ey 'sin(y)'
-fill ez '1'
-box
-vect ex ey ez 'bwr'

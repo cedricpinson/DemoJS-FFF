@@ -1,0 +1,152 @@
+<!doctype html>  
+<html lang="en">
+  
+  <head>
+    <meta charset="utf-8">
+    
+    <title>CSS 3D Slideshow</title>
+    
+    <link href='http://fonts.googleapis.com/css?family=Crimson+Text:regular,600,bold' rel='stylesheet' type='text/css'>
+    
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/main.css">
+  </head>
+  
+  <body>
+    
+    <!-- Any section element inside of this container is displayed as a slide -->
+    <div id="main">
+      
+      <section>
+        <h1>Inside <a href="http://cedricpinson.com/demojs-fff/">FFF</a></h1>
+        <a href="http://cedricpinson.com/demojs-fff/conf/"><img src="qr.png"></a>
+        <footer>by <a href="http://cedricpinson.com">Cedric Pinson</a> - <a href="https://twitter.com/#!/trigrou">@trigrou</a></footer>
+        <script>
+          // Delicously hacky. Look away.
+          var message = navigator.userAgent.match( /(iPhone|iPad|iPod|Android)/i ) ? 'Tap to navigate' : 'Navigate via keyboard';
+          document.write( '<p style="color: rgba(0,0,0,0.1); text-shadow: none;">('+message+')</p>' );
+        </script>
+      </section>
+
+      <section>
+        <h2>Invite Intro</h2>
+        <ol>
+          <li>Use to announce a demo party event</li>
+          <li>10 days</li>
+          <li>Do something fun</li>
+        </ol>
+      </section>
+
+
+      <section>
+        <h2>Particles on GPU</h2>
+        <ol>
+          <li>Why on gpu ?</li>
+          <li>Previous work - <a href="http://plopbyte.com/webgl-particles-demo/">firefox</a>, <a href="http://www.htmlfivewow.com/slide52">google</a></li>
+          <li>Particles master - <a href="http://directtovideo.wordpress.com/2009/10/06/a-thoroughly-modern-particle-system/">the beginning</a></li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>How to move particles on gpu</h2>
+        <ol>
+          <li>3 <a href="#/7">buffers</a> 512x512 = 262k particles in <a href="#/8">24 bits</a></li>
+          <li>distance map <a href="#/9">1</a>, <a href="#/10">2</a> fit shapes - <a href="https://github.com/cedricpinson/DistanceMapGenerator">generator/octave</a></li>
+          <li>procedural <a href="#/11">velocity field<a/> - <a href="#/12">mathgl/udav</a></li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Music</h2>
+        <ol>
+          <li>Input <a href="FRQMusicEvents.h">pattern data</a></li>
+          <li><a href="https://github.com/cedricpinson/timeline.js">Timeline.js</a> sync events</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Model 3D</h2>
+        <ol>
+          <li>Data exported from <a href="http://www.blender.org/">blender</a></li>
+          <li>Convert 3D point to texture</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Links</h2>
+        <ol>
+          <li><a href="http://www.miaumiau.cat/2011/06/shadow-particles-part-i-generating-a-shadow-map/">WebGL particles</a></li>
+          <li><a href="http://www.frequency.fr/">FRequency</a></li>
+          <li><a href="http://plopbyte.com/demojs-fff/#credits">Credits</a></li>
+          <li><a href="https://github.com/hakimel/CSS-3D-Slideshow">Hakimel slideshow</a></li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Buffers</h2>
+        <a href="buffers.jpg"><img width="800" src="buffers.jpg"></a>
+      </section>
+
+      <section>
+        <h2>Pixels</h2>
+        <a href="pixels.jpg"><img width="800" src="pixels.jpg"></a>
+      </section>
+
+      <section>
+        <h2>Distance map</h2>
+        <a href="Title.png"><img width="512" src="Title.png"></a>
+      </section>
+
+      <section>
+        <h2>Gradient map</h2>
+        <a href="Title_grad.png"><img width="512" src="Title_grad.png"></a>
+      </section>
+
+      <section>
+        <h2>UDAV Script</h2>
+        <a href="script.png"><img width="800" src="script.png"></a>
+      </section>
+
+      <section>
+        <h2>UDAV</h2>
+        <a href="udav.png"><img width="800" src="udav.png"></a>
+      </section>
+
+
+    </div>
+    
+    <script src="js/slideshow.js"></script>
+    
+    
+    
+    <!-- Everything below this point is unrelated to the slideshow -->
+    
+    <div class="tweet-button" style="position: absolute; bottom: 10px; left: 50%; margin-left: -25px">
+      <a href="http://twitter.com/share" class="twitter-share-button" data-text="A CSS 3D slideshow by @hakimel." data-url="http://hakim.se/experiments/css3-3d-slideshow" data-count="none" data-related="hakimel"></a>
+      <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+    </div>
+    
+    <script>
+      var _gaq = [['_setAccount', 'UA-15240703-1'], ['_trackPageview']];
+      (function(d, t) {
+      var g = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+      g.async = true;
+      g.src = ('https:' == location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      s.parentNode.insertBefore(g, s);
+      })(document, 'script');
+    </script>
+    
+    <style>a[href="http://www.w3counter.com"] { display: none!important; }</style>
+    <script src="http://www.w3counter.com/tracker.js"></script>
+    <script>
+      w3counter(49720);
+      var ps = document.createElement('script');
+      ps.type = 'text/javascript';
+      ps.async = true;
+      ps.src = '//pulse.w3counter.com/pulse.js?id=49720';
+      (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(ps);
+    </script>
+    
+  </body>
+</html>
