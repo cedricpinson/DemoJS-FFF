@@ -76,7 +76,10 @@ var Slideshow = (function(){
 	 * @param {Object} event
 	 */
 	function onDocumentKeyDown( event ) {
-		
+	    if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey ||
+                event.keyIdentifier === "Alt")
+                return;
+
 		if( event.keyCode >= 37 && event.keyCode <= 40 ) {
 			
 			switch( event.keyCode ) {
